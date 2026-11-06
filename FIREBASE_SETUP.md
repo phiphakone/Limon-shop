@@ -22,7 +22,9 @@ Then deploy the Firestore rules, Storage rules, and static website:
 
     firebase deploy
 
-The rules allow customers to submit new orders and upload an image receipt up to 5 MB. Only the admin email above can read orders and payment proofs. The admin can update order and payment statuses.
+The rules allow guest orders and orders linked to the signed-in customer account. Customers can read only orders linked to their own Firebase user ID; the admin email above can read all orders and payment proofs. The admin can update order and payment statuses.
+
+Orders submitted while the customer is signed in appear in **Account → Order history**. Guest orders remain available to the shop admin but are not attached to a customer account, including orders submitted before this change.
 
 ## 3. Open the site
 

@@ -103,6 +103,8 @@ const accountMenu = document.getElementById("account-menu");
 const accountModal = document.getElementById("account-modal");
 const accountForm = document.getElementById("account-form");
 const accountMessage = document.getElementById("account-message");
+const orderHistoryModal = document.getElementById("order-history-modal");
+const orderHistoryList = document.getElementById("order-history-list");
 let currentAccountUser = null;
 let accountMode = "register";
 
@@ -247,7 +249,117 @@ function isAccountRegisterMode() {
 
 function closeAccountModal() {
   accountModal.hidden = true;
-  if (orderModal.hidden && !drawer.classList.contains("is-open")) document.body.classList.remove("has-overlay");
+  if (orderModal.hidden && orderHistoryModal.hidden && !drawer.classList.contains("is-open")) document.body.classList.remove("has-overlay");
+}
+
+function closeOrderHistory() {
+  orderHistoryModal.hidden = true;
+  if (accountModal.hidden && orderModal.hidden && !drawer.classList.contains("is-open")) document.body.classList.remove("has-overlay");
+}
+
+function historyText(message) {
+  orderHistoryList.replaceChildren();
+  const empty = document.createElement("p");
+  empty.className = "order-history-empty";
+  empty.textContent = message;
+  orderHistoryList.appendChild(empty);
+}
+
+function orderStatusLabel(status) {
+  const labels = {
+    "new": "ໃໝ່",
+    "confirmed": "ຢືນຢັນແລ້ວ",
+    "preparing": "ກຳລັງກຽມ",
+    "shipped": "ກຳລັງຈັດສົ່ງ",
+    "completed": "ສຳເລັດ",
+    "cancelled": "ຍົກເລີກ"
+  };
+  return labels[status] || status || "—";
+}
+
+function renderOrderHistory(orders) {
+  orderHistoryList.replaceChildren();
+  if (!orders.length) {
+    historyText("ຍັງບໍ່ມີຄຳສັ່ງຊື້ທີ່ຜູກກັບບັນຊີນີ້. ຄຳສັ່ງຊື້ແບບບໍ່ໄດ້ເຂົ້າລະບົບຈະບໍ່ປາກົດໃນປະຫວັດນີ້.");
+    return;
+  }
+
+  const dateFormatter = new Intl.DateTimeFormat("lo-LA", { dateStyle: "medium", timeStyle: "short" });
+  orders.slice().sort(function (left, right) {
+    const leftDate = left.createdAt && typeof left.createdAt.toDate === "function" ? left.createdAt.toDate().getTime() : 0;
+    const rightDate = right.createdAt && typeof right.createdAt.toDate === "function" ? right.createdAt.toDate().getTime() : 0;
+    return rightDate - leftDate;
+  }).forEach(function (order) {
+    const card = document.createElement("article");
+    card.className = "order-history-card";
+
+    const top = document.createElement("div");
+    top.className = "order-history-topline";
+    const code = document.createElement("strong");
+    code.className = "order-history-code";
+    code.textContent = "#" + order.id;
+    const date = document.createElement("time");
+    date.className = "order-history-date";
+    const createdAt = order.createdAt && typeof order.createdAt.toDate === "function" ? order.createdAt.toDate() : null;
+    if (createdAt) {
+      date.dateTime = createdAt.toISOString();
+      date.textContent = dateFormatter.format(createdAt);
+    } else {
+      date.textContent = "";
+    }
+    top.append(code, date);
+    card.appendChild(top);
+
+    const items = document.createElement("ul");
+    items.className = "order-history-items";
+    (Array.isArray(order.items) ? order.items : []).forEach(function (item) {
+      const line = document.createElement("li");
+      line.textContent = (item.productName || item.productCode || "ສິນຄ້າ") + " · " + (item.pack || "") + " × " + Number(item.quantity || 0);
+      items.appendChild(line);
+    });
+    card.appendChild(items);
+
+    const bottom = document.createElement("div");
+    bottom.className = "order-history-bottom";
+    const status = document.createElement("span");
+    status.className = "order-status";
+    status.textContent = orderStatusLabel(order.orderStatus);
+    const total = document.createElement("strong");
+    total.className = "order-history-total";
+    total.textContent = formatMoney(Number(order.total || 0));
+    bottom.append(status, total);
+    card.appendChild(bottom);
+    orderHistoryList.appendChild(card);
+  });
+}
+
+async function openOrderHistory() {
+  accountMenu.hidden = true;
+  if (!currentAccountUser) {
+    openAccountModal("login");
+    accountMessage.textContent = "ກະລຸນາເຂົ້າລະບົບເພື່ອເບິ່ງປະຫວັດຄຳສັ່ງຊື້.";
+    return;
+  }
+
+  orderHistoryModal.hidden = false;
+  document.body.classList.add("has-overlay");
+  historyText("ກຳລັງໂຫຼດຄຳສັ່ງຊື້...");
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    const user = client.auth.currentUser || currentAccountUser;
+    const ordersQuery = client.firestore.query(
+      client.firestore.collection(client.db, "orders"),
+      client.firestore.where("customerUid", "==", user.uid)
+    );
+    const snapshot = await client.firestore.getDocs(ordersQuery);
+    renderOrderHistory(snapshot.docs.map(function (orderDoc) {
+      return Object.assign({ id: orderDoc.id }, orderDoc.data());
+    }));
+  } catch (error) {
+    console.error("Customer order history could not be loaded.", error);
+    historyText("ໂຫຼດປະຫວັດບໍ່ສຳເລັດ. ກວດກາກົດ Firestore ແລະລອງໃໝ່ຫຼັງຈາກຕັ້ງຄ່າ Firebase ແລ້ວ.");
+  }
 }
 
 function accountAuthError(error) {
@@ -430,9 +542,10 @@ async function submitOrder(event) {
       note: document.getElementById("customer-note").value.trim()
     };
 
+    const signedInUser = client.auth.currentUser || currentAccountUser;
     await client.firestore.setDoc(orderRef, {
-      customerUid: "",
-      customerEmail: "",
+      customerUid: signedInUser ? signedInUser.uid : "",
+      customerEmail: signedInUser ? (signedInUser.email || "") : "",
       customer: customer,
       items: items,
       total: totalPrice(),
@@ -609,6 +722,11 @@ document.getElementById("account-sign-out").addEventListener("click", async func
     showToast("ອອກຈາກລະບົບບໍ່ສຳເລັດ. ລອງໃໝ່.");
   }
 });
+document.getElementById("account-orders-open").addEventListener("click", openOrderHistory);
+document.getElementById("order-history-close").addEventListener("click", closeOrderHistory);
+orderHistoryModal.addEventListener("click", function (event) {
+  if (event.target === orderHistoryModal) closeOrderHistory();
+});
 document.getElementById("continue-shopping").addEventListener("click", function () { closeCart(); document.getElementById("products").scrollIntoView({ behavior: "smooth" }); });
 document.getElementById("clear-cart").addEventListener("click", function () {
   cart = [];
@@ -649,6 +767,7 @@ orderSuccess.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") {
     if (!accountModal.hidden) closeAccountModal();
+    else if (!orderHistoryModal.hidden) closeOrderHistory();
     else if (!orderModal.hidden) closeOrder();
     else if (drawer.classList.contains("is-open")) closeCart();
   }

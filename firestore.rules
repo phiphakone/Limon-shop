@@ -9,8 +9,12 @@ service cloud.firestore {
       let customer = data.customer;
       return data.keys().hasAll(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
         && data.keys().hasOnly(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
-        && data.customerUid == ''
-        && data.customerEmail == ''
+        && data.customerUid is string
+        && data.customerEmail is string
+        && ((data.customerUid == '' && data.customerEmail == '')
+          || (request.auth != null
+            && data.customerUid == request.auth.uid
+            && data.customerEmail == request.auth.token.email))
         && customer is map
         && customer.keys().hasAll(['name', 'phone', 'address', 'deliveryArea', 'note'])
         && customer.keys().hasOnly(['name', 'phone', 'address', 'deliveryArea', 'note'])
@@ -30,7 +34,9 @@ service cloud.firestore {
     }
     match /orders/{orderId} {
       allow create: if validNewOrder(orderId);
-      allow get, list: if isAdmin();
+      allow get, list: if isAdmin() || (
+        request.auth != null && request.auth.uid == resource.data.customerUid
+      );
       allow update: if (
           isAdmin()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['orderStatus', 'paymentStatus'])

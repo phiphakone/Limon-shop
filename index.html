@@ -8,8 +8,8 @@
   <title>Limon Shop — ຮ້ານເຈ້ຍທິດຊູ</title>
   <link rel="preconnect" href="https://fonts.mts.la" crossorigin>
   <link rel="stylesheet" href="https://fonts.mts.la/fonts/phetsarath-ot/phetsarath-ot.css">
-  <link rel="stylesheet" href="./styles.css?v=20261106-account">
-  <script src="./script.js?v=20261106-account" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=20261106-order-history">
+  <script src="./script.js?v=20261106-order-history" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -32,6 +32,7 @@
         <div class="account-menu" id="account-menu" hidden>
           <strong id="account-menu-name"></strong>
           <span id="account-menu-email"></span>
+          <button class="button button-outline button-wide account-orders-open" id="account-orders-open" type="button">ປະຫວັດການສັ່ງຊື້</button>
           <button class="button button-quiet button-wide" id="account-sign-out" type="button">ອອກຈາກລະບົບ</button>
         </div>
       </div>
@@ -135,6 +136,17 @@
         <button class="button button-primary button-wide account-submit" id="account-submit" type="submit">ລົງທະບຽນ</button>
       </form>
       <p class="account-message" id="account-message" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="order-history-modal" hidden>
+    <section class="order-modal order-history-modal" role="dialog" aria-modal="true" aria-labelledby="order-history-title">
+      <div class="modal-head">
+        <div><span class="eyebrow"><span></span> LIMON SHOP</span><h2 id="order-history-title">ປະຫວັດການສັ່ງຊື້</h2></div>
+        <button class="icon-button" id="order-history-close" type="button" aria-label="ປິດປະຫວັດການສັ່ງຊື້">×</button>
+      </div>
+      <p class="modal-description">ຄຳສັ່ງຊື້ທີ່ຜູກກັບບັນຊີນີ້ຈະສະແດງຢູ່ທີ່ນີ້.</p>
+      <div class="order-history-list" id="order-history-list" aria-live="polite"></div>
     </section>
   </div>
 

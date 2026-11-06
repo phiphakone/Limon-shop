@@ -10,6 +10,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  where,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
@@ -45,6 +46,7 @@ export const firestore = {
   query,
   serverTimestamp,
   setDoc,
+  where,
   updateDoc
 };
 export const authentication = {
