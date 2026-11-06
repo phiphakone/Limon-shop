@@ -53,7 +53,7 @@ const products = [
   {
     id: "roll-flower",
     code: "L04",
-    name: "ເຈ້ຍມ້ວນລາຍດອກໄມ້",
+    name: "ເຈ້ຍກໍ້ມ້ວນໃຫຍ່",
     subtitle: "ເຈ້ຍມ້ວນ · ລາຍດອກໄມ້",
     category: "roll",
     tag: "ເຈ້ຍມ້ວນ",
@@ -66,7 +66,7 @@ const products = [
   {
     id: "flower-pack",
     code: "L05",
-    name: "ເຈ້ຍທິດຊູແພັກລາຍດອກໄມ້",
+    name: "ເຈ້ຍທິດຊູລາຍດອກຈຳປາແພັກໃຫຍ່4ອັນ",
     subtitle: "ລາຍກິ່ງດອກໄມ້ · 12 ແພັກຕໍ່ແກັດ",
     category: "pack",
     tag: "ລາຍກິ່ງດອກໄມ້",
