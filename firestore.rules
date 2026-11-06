@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'ppk.bm.30@gmail.com';
+      return request.auth != null && request.auth.token.email in ['ppk.bm.30@gmail.com', 'tkmo87777@gmail.com'];
     }
     function validNewOrder(orderId) {
       let data = request.resource.data;

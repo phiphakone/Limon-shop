@@ -1,6 +1,4 @@
-import {
-  ADMIN_EMAIL
-} from "./firebase-config.js";
+import { ADMIN_EMAILS } from "./firebase-config.js?v=20261106-admin-list";
 import {
   auth,
   db,
@@ -37,6 +35,13 @@ const dataMessage = document.getElementById("admin-data-message");
 const orderList = document.getElementById("admin-order-list");
 const orderFilter = document.getElementById("order-filter");
 const toast = document.getElementById("admin-toast");
+
+function isAdminEmail(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  return ADMIN_EMAILS.some(function (allowedEmail) {
+    return allowedEmail.toLowerCase() === normalizedEmail;
+  });
+}
 
 function escapeHtml(value) {
   return String(value == null ? "" : value)
@@ -139,7 +144,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
   const button = document.getElementById("admin-login-button");
   const email = document.getElementById("admin-email").value.trim().toLowerCase();
   const password = document.getElementById("admin-password").value;
-  if (email !== ADMIN_EMAIL.toLowerCase()) {
+  if (!isAdminEmail(email)) {
     loginMessage.textContent = "ອີເມວນີ້ບໍ່ມີສິດເຂົ້າໜ້າຜູ້ດູແລຮ້ານ.";
     return;
   }
@@ -165,7 +170,7 @@ document.getElementById("admin-google-login").addEventListener("click", async fu
   try {
     const result = await authentication.signInWithPopup(auth, provider);
     const email = result.user.email ? result.user.email.toLowerCase() : "";
-    if (email !== ADMIN_EMAIL.toLowerCase()) {
+    if (!isAdminEmail(email)) {
       await authentication.signOut(auth);
       loginMessage.textContent = "ບັນຊີ Google ນີ້ບໍ່ມີສິດເຂົ້າໜ້າຜູ້ດູແລຮ້ານ.";
       return;
@@ -247,7 +252,7 @@ authentication.onAuthStateChanged(auth, async function (user) {
     loginCard.hidden = false;
     return;
   }
-  if (!user.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  if (!isAdminEmail(user.email)) {
     await authentication.signOut(auth);
     loginMessage.textContent = "ບັນຊີນີ້ບໍ່ມີສິດເຂົ້າໃຊ້ໜ້າຜູ້ດູແລຮ້ານ.";
     return;

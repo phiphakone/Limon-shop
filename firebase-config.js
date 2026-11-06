@@ -8,6 +8,9 @@ export const firebaseConfig = {
   measurementId: "G-PMRLVB7Z22"
 };
 
-// The same email must be used by the Firestore and Storage rules.
-export const ADMIN_EMAIL = "ppk.bm.30@gmail.com";
+// Keep this list synchronized with the Firestore and Storage security rules.
+export const ADMIN_EMAILS = [
+  "ppk.bm.30@gmail.com",
+  "tkmo87777@gmail.com"
+];
 

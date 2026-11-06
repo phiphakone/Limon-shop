@@ -2,7 +2,7 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'ppk.bm.30@gmail.com';
+      return request.auth != null && request.auth.token.email in ['ppk.bm.30@gmail.com', 'tkmo87777@gmail.com'];
     }
     match /payment-proofs/{orderId}/receipt {
       allow create: if request.resource.size <= 5 * 1024 * 1024
