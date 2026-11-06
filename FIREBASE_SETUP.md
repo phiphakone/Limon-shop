@@ -8,7 +8,7 @@ In the Firebase Console for limom-915b8:
 
 1. Create a Cloud Firestore database.
 2. In Authentication, enable the Email/Password and Google providers, and create an admin user for **ppk.bm.30@gmail.com**. Set the password in Firebase Console; do not put it in website code.
-3. In Authentication settings, add the website domain to Authorized domains. For the local preview, use **localhost**.
+3. In Authentication settings, add **phiphakone.github.io** to Authorized domains for the GitHub Pages site (enter the hostname only, without `https://` or `/Limon-shop/`). Add **localhost** separately if you use the local preview.
 4. In Storage, create or enable the project's bucket.
 
 ## 2. Publish the security rules and website

@@ -11,19 +11,19 @@ import {
 } from "./firebase-client.js";
 
 const statusLabels = {
-  new: "ອໍເດີໃໝ່",
+  new: "ຄຳສັ່ງຊື້ໃໝ່",
   confirmed: "ຢືນຢັນແລ້ວ",
-  preparing: "ກຳລັງກຽມ",
+  preparing: "ກຳລັງກະກຽມສິນຄ້າ",
   shipped: "ຈັດສົ່ງແລ້ວ",
-  completed: "ສຳເລັດ",
+  completed: "ສຳເລັດແລ້ວ",
   cancelled: "ຍົກເລີກ"
 };
 const paymentLabels = {
   awaiting_payment: "ລໍຖ້າຊຳລະ",
-  awaiting_proof_upload: "ລໍຖ້າອັບໂຫຼດສະລິບ",
-  proof_submitted: "ສົ່ງສະລິບແລ້ວ · ລໍຖ້າກວດ",
+  awaiting_proof_upload: "ລໍຖ້າອັບໂຫຼດຫຼັກຖານການໂອນ",
+  proof_submitted: "ສົ່ງຫຼັກຖານແລ້ວ · ລໍຖ້າກວດສອບ",
   paid: "ຊຳລະແລ້ວ",
-  rejected: "ສະລິບບໍ່ຜ່ານ"
+  rejected: "ຫຼັກຖານການໂອນຖືກປະຕິເສດ"
 };
 let allOrders = [];
 let unsubscribeOrders = null;
@@ -51,7 +51,7 @@ function money(value) {
 }
 
 function dateLabel(value) {
-  if (!value || typeof value.toDate !== "function") return "ກຳລັງບັນທຶກເວລາ...";
+  if (!value || typeof value.toDate !== "function") return "ກຳລັງລໍຖ້າວັນເວລາ...";
   return value.toDate().toLocaleString("lo-LA", { dateStyle: "medium", timeStyle: "short" });
 }
 
@@ -77,12 +77,12 @@ function renderOrders() {
   document.getElementById("order-count").textContent = String(allOrders.length);
   if (allOrders.length === 0) {
     orderList.innerHTML = "";
-    dataMessage.textContent = "ຍັງບໍ່ມີອໍເດີ. ເມື່ອລູກຄ້າສັ່ງຊື້, ລາຍການຈະສະແດງຢູ່ນີ້.";
+    dataMessage.textContent = "ຍັງບໍ່ມີຄຳສັ່ງຊື້. ເມື່ອລູກຄ້າສັ່ງຊື້ ລາຍການຈະສະແດງຢູ່ບ່ອນນີ້.";
     return;
   }
   dataMessage.textContent = "";
   if (visibleOrders.length === 0) {
-    orderList.innerHTML = '<div class="admin-empty">ບໍ່ມີອໍເດີໃນສະຖານະນີ້.</div>';
+    orderList.innerHTML = '<div class="admin-empty">ບໍ່ມີຄຳສັ່ງຊື້ໃນສະຖານະນີ້.</div>';
     return;
   }
 
@@ -91,26 +91,28 @@ function renderOrders() {
     const customer = data.customer || {};
     const items = Array.isArray(data.items) ? data.items : [];
     const itemsHtml = items.map(function (item) {
-      return '<div class="admin-item-row"><div><strong>' + escapeHtml(item.productName) + '</strong><small>' + escapeHtml(item.pack) + " · " + escapeHtml(item.quantity) + " ໜ່ວຍ × " + money(item.unitPrice) + '</small></div><b>' + money(item.subtotal) + "</b></div>";
+      const sku = item.productCode ? escapeHtml(item.productCode) + " · " : "";
+      const quantity = escapeHtml(item.quantity) + (item.unit ? " " + escapeHtml(item.unit) : "");
+      return '<div class="admin-item-row"><div><strong>' + sku + escapeHtml(item.productName) + '</strong><small>' + escapeHtml(item.pack) + " · " + quantity + " × " + money(item.unitPrice) + '</small></div><b>' + money(item.subtotal) + "</b></div>";
     }).join("");
     const proofButton = data.paymentProofPath
       ? '<button class="proof-button" type="button" data-proof-path="' + escapeHtml(data.paymentProofPath) + '">ເບິ່ງຫຼັກຖານການໂອນ ↗</button>'
-      : '<span class="proof-missing">ຍັງບໍ່ມີສະລິບ</span>';
+      : '<span class="proof-missing">ຍັງບໍ່ມີຫຼັກຖານການໂອນ</span>';
     return '<article class="admin-order-card" data-order-id="' + escapeHtml(entry.id) + '">' +
-      '<div class="admin-order-head"><div><span class="order-code-label">ເລກອໍເດີ</span><strong class="admin-order-code">' + escapeHtml(entry.id) + '</strong><span class="admin-order-date">' + escapeHtml(dateLabel(data.createdAt)) + '</span></div><span class="order-badge">' + escapeHtml(statusLabels[data.orderStatus] || data.orderStatus || "—") + '</span></div>' +
+      '<div class="admin-order-head"><div><span class="order-code-label">ເລກທີຄຳສັ່ງຊື້</span><strong class="admin-order-code">' + escapeHtml(entry.id) + '</strong><span class="admin-order-date">' + escapeHtml(dateLabel(data.createdAt)) + '</span></div><span class="order-badge">' + escapeHtml(statusLabels[data.orderStatus] || data.orderStatus || "—") + '</span></div>' +
       '<div class="admin-order-body">' +
-        '<section class="admin-customer"><h3>ຂໍ້ມູນລູກຄ້າ</h3><p><span>ຊື່</span><strong>' + escapeHtml(customer.name) + '</strong></p><p><span>Email</span><a href="mailto:' + escapeHtml(data.customerEmail) + '">' + escapeHtml(data.customerEmail) + '</a></p><p><span>ເບີໂທ</span><a href="tel:' + escapeHtml(customer.phone) + '">' + escapeHtml(customer.phone) + '</a></p><p><span>ທີ່ຢູ່</span><strong>' + escapeHtml(customer.address) + '</strong></p>' + (customer.note ? '<p><span>ໝາຍເຫດ</span><strong>' + escapeHtml(customer.note) + '</strong></p>' : "") + '</section>' +
+        '<section class="admin-customer"><h3>ຂໍ້ມູນລູກຄ້າ</h3><p><span>ຊື່</span><strong>' + escapeHtml(customer.name) + '</strong></p><p><span>ອີເມວ</span><a href="mailto:' + escapeHtml(data.customerEmail) + '">' + escapeHtml(data.customerEmail) + '</a></p><p><span>ເບີໂທຕິດຕໍ່</span><a href="tel:' + escapeHtml(customer.phone) + '">' + escapeHtml(customer.phone) + '</a></p><p><span>ທີ່ຢູ່ຈັດສົ່ງ</span><strong>' + escapeHtml(customer.address) + '</strong></p>' + (customer.note ? '<p><span>ໝາຍເຫດ</span><strong>' + escapeHtml(customer.note) + '</strong></p>' : "") + '</section>' +
         '<section class="admin-products"><h3>ລາຍການສິນຄ້າ</h3>' + itemsHtml + '<div class="admin-total"><span>ຍອດລວມ</span><strong>' + money(data.total) + '</strong></div></section>' +
         '<section class="admin-payment"><h3>ການຊຳລະ</h3><p><span>ວິທີ</span><strong>' + escapeHtml(data.paymentMethod || "BCEL QR") + '</strong></p><p><span>ສະຖານະ</span><strong>' + escapeHtml(paymentLabels[data.paymentStatus] || data.paymentStatus || "—") + '</strong></p>' + proofButton + '</section>' +
       '</div>' +
-      '<div class="admin-order-controls"><label>ສະຖານະອໍເດີ<select data-order-status>' + optionMarkup(statusLabels, data.orderStatus || "new") + '</select></label><label>ສະຖານະຊຳລະ<select data-payment-status>' + optionMarkup(paymentLabels, data.paymentStatus || "awaiting_payment") + '</select></label><button class="button button-primary" type="button" data-save-order>ບັນທຶກສະຖານະ</button></div>' +
+      '<div class="admin-order-controls"><label>ສະຖານະຄຳສັ່ງຊື້<select data-order-status>' + optionMarkup(statusLabels, data.orderStatus || "new") + '</select></label><label>ສະຖານະການຊຳລະ<select data-payment-status>' + optionMarkup(paymentLabels, data.paymentStatus || "awaiting_payment") + '</select></label><button class="button button-primary" type="button" data-save-order>ບັນທຶກສະຖານະ</button></div>' +
       "</article>";
   }).join("");
 }
 
 function watchOrders() {
   if (unsubscribeOrders) unsubscribeOrders();
-  dataMessage.textContent = "ກຳລັງໂຫຼດອໍເດີ...";
+  dataMessage.textContent = "ກຳລັງໂຫຼດຄຳສັ່ງຊື້...";
   const ordersQuery = firestore.query(
     firestore.collection(db, "orders"),
     firestore.orderBy("createdAt", "desc")
@@ -120,7 +122,7 @@ function watchOrders() {
     renderOrders();
   }, function (error) {
     console.error("Could not load orders.", error);
-    dataMessage.textContent = "ໂຫຼດອໍເດີບໍ່ສຳເລັດ. ກວດກາ Firestore Rules ແລະ ສະຖານະ Firebase.";
+    dataMessage.textContent = "ໂຫຼດລາຍການບໍ່ສຳເລັດ. ກະລຸນາກວດສອບ Firestore Rules ແລະ ສະຖານະ Firebase.";
   });
 }
 
@@ -137,7 +139,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
   const email = document.getElementById("admin-email").value.trim().toLowerCase();
   const password = document.getElementById("admin-password").value;
   if (email !== ADMIN_EMAIL.toLowerCase()) {
-    loginMessage.textContent = "email ນີ້ບໍ່ມີສິດເຂົ້າໜ້າ Admin.";
+    loginMessage.textContent = "ອີເມວນີ້ບໍ່ມີສິດເຂົ້າໜ້າຜູ້ດູແລຮ້ານ.";
     return;
   }
   button.disabled = true;
@@ -147,7 +149,7 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
     loginMessage.textContent = "";
   } catch (error) {
     console.error("Admin sign in failed.", error);
-    loginMessage.textContent = "ເຂົ້າລະບົບບໍ່ສຳເລັດ. ກວດ email/password ແລະ Firebase Authentication.";
+    loginMessage.textContent = "ເຂົ້າລະບົບບໍ່ສຳເລັດ. ກະລຸນາກວດສອບອີເມວ, ລະຫັດຜ່ານ ແລະ Firebase Authentication.";
   } finally {
     button.disabled = false;
   }
@@ -188,7 +190,7 @@ document.getElementById("admin-order-list").addEventListener("click", async func
   if (proofButton) {
     const proofWindow = window.open("about:blank", "_blank");
     if (!proofWindow) {
-      showToast("ອະນຸຍາດ pop-up ເພື່ອເບິ່ງສະລິບ.");
+      showToast("ກະລຸນາອະນຸຍາດໜ້າຕ່າງປັອບອັບ ເພື່ອເບິ່ງຫຼັກຖານການໂອນ.");
       return;
     }
     proofWindow.opener = null;
@@ -199,7 +201,7 @@ document.getElementById("admin-order-list").addEventListener("click", async func
     } catch (error) {
       proofWindow.close();
       console.error("Payment proof could not be opened.", error);
-      showToast("ຍັງບໍ່ພົບຮູບສະລິບ. ອາດຈະອັບໂຫຼດບໍ່ສຳເລັດ.");
+      showToast("ບໍ່ພົບຮູບຫຼັກຖານການໂອນ. ການອັບໂຫຼດອາດບໍ່ສຳເລັດ.");
     } finally {
       proofButton.disabled = false;
     }
@@ -217,7 +219,7 @@ authentication.onAuthStateChanged(auth, async function (user) {
   }
   if (!user.email || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
     await authentication.signOut(auth);
-    loginMessage.textContent = "ບັນຊີນີ້ບໍ່ມີສິດເປັນ Admin.";
+    loginMessage.textContent = "ບັນຊີນີ້ບໍ່ມີສິດເຂົ້າໃຊ້ໜ້າຜູ້ດູແລຮ້ານ.";
     return;
   }
   showDashboard(user);
