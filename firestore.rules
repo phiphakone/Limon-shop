@@ -7,8 +7,11 @@ service cloud.firestore {
     function validNewOrder(orderId) {
       let data = request.resource.data;
       let customer = data.customer;
-      return data.keys().hasAll(['customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
-        && data.keys().hasOnly(['customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
+      return request.auth != null
+        && data.keys().hasAll(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
+        && data.keys().hasOnly(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
+        && data.customerUid == request.auth.uid
+        && data.customerEmail == request.auth.token.email
         && customer is map
         && customer.keys().hasAll(['name', 'phone', 'address', 'note'])
         && customer.keys().hasOnly(['name', 'phone', 'address', 'note'])
@@ -28,7 +31,7 @@ service cloud.firestore {
         && data.createdAt == request.time;
     }
     match /orders/{orderId} {
-      allow create: if validNewOrder(orderId);
+      allow create: if request.auth != null && validNewOrder(orderId);
       allow get, list: if isAdmin();
       allow update: if (
           isAdmin()
@@ -36,7 +39,8 @@ service cloud.firestore {
           && request.resource.data.orderStatus in ['new', 'confirmed', 'preparing', 'shipped', 'completed', 'cancelled']
           && request.resource.data.paymentStatus in ['awaiting_payment', 'awaiting_proof_upload', 'proof_submitted', 'paid', 'rejected']
         ) || (
-          request.auth == null
+          request.auth != null
+          && request.auth.uid == resource.data.customerUid
           && resource.data.paymentStatus == 'awaiting_proof_upload'
           && request.resource.data.paymentStatus == 'proof_submitted'
           && request.resource.data.paymentProofPath == resource.data.paymentProofPath

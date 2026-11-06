@@ -3,6 +3,12 @@ const firebaseClientPromise = import("./firebase-client.js").catch(function (err
   console.error("Firebase SDK could not be loaded.", error);
   return null;
 });
+let currentUser = null;
+let authResolved = false;
+let authMode = "login";
+let pendingCheckout = false;
+let resolveAuthReady;
+const authReady = new Promise(function (resolve) { resolveAuthReady = resolve; });
 const products = [
   {
     id: "elephant",
@@ -91,6 +97,7 @@ const orderModal = document.getElementById("order-modal");
 const orderPreview = document.getElementById("order-preview");
 const orderForm = document.getElementById("order-form");
 const orderSuccess = document.getElementById("order-success");
+const authModal = document.getElementById("auth-modal");
 const toast = document.getElementById("toast");
 
 function formatMoney(amount) {
@@ -176,6 +183,74 @@ function showToast(message) {
   toastTimer = window.setTimeout(function () { toast.classList.remove("is-visible"); }, 2300);
 }
 
+function setAuthMode(mode) {
+  authMode = mode;
+  const registering = mode === "register";
+  document.getElementById("auth-title").textContent = registering ? "ລົງທະບຽນ" : "ເຂົ້າລະບົບ";
+  document.getElementById("auth-description").textContent = registering
+    ? "ສ້າງບັນຊີກ່ອນສັ່ງຊື້. ໃຊ້ email ແລະ password ຂອງທ່ານ."
+    : "ເຂົ້າລະບົບກ່ອນສັ່ງຊື້.";
+  document.getElementById("auth-name-label").hidden = !registering;
+  document.getElementById("auth-name").hidden = !registering;
+  document.getElementById("auth-name").required = registering;
+  document.getElementById("auth-password").autocomplete = registering ? "new-password" : "current-password";
+  document.getElementById("auth-submit").innerHTML = registering
+    ? 'ສ້າງບັນຊີ <span aria-hidden="true">→</span>'
+    : 'ເຂົ້າລະບົບ <span aria-hidden="true">→</span>';
+  document.getElementById("auth-switch-prompt").textContent = registering ? "ມີບັນຊີແລ້ວ?" : "ຍັງບໍ່ມີບັນຊີ?";
+  document.getElementById("auth-switch").textContent = registering ? "ເຂົ້າລະບົບ" : "ລົງທະບຽນ";
+}
+
+function openAuthModal(mode, checkoutPending) {
+  setAuthMode(mode);
+  pendingCheckout = Boolean(checkoutPending);
+  document.getElementById("auth-status").textContent = pendingCheckout
+    ? "ກະລຸນາລົງທະບຽນ ຫຼື ເຂົ້າລະບົບກ່ອນສັ່ງຊື້."
+    : "";
+  authModal.hidden = false;
+  document.body.classList.add("has-overlay");
+  document.getElementById("auth-email").focus();
+}
+
+function closeAuthModal() {
+  authModal.hidden = true;
+  document.body.classList.remove("has-overlay");
+}
+
+function updateAuthHeader(user) {
+  currentUser = user || null;
+  document.getElementById("login-open").hidden = Boolean(user);
+  document.getElementById("register-open").hidden = Boolean(user);
+  document.getElementById("auth-user").hidden = !user;
+  document.getElementById("logout-button").hidden = !user;
+  document.getElementById("auth-user").textContent = user ? (user.displayName || user.email || "ບັນຊີຂອງຂ້ອຍ") : "";
+  if (user && user.displayName && !document.getElementById("customer-name").value) {
+    document.getElementById("customer-name").value = user.displayName;
+  }
+  authResolved = true;
+  resolveAuthReady();
+  if (user) {
+    closeAuthModal();
+    if (pendingCheckout) {
+      pendingCheckout = false;
+      openOrder();
+    }
+  }
+}
+
+firebaseClientPromise.then(function (client) {
+  if (!client) {
+    authResolved = true;
+    resolveAuthReady();
+    return;
+  }
+  client.authentication.onAuthStateChanged(client.auth, updateAuthHeader);
+}).catch(function (error) {
+  console.error("Firebase Authentication could not start.", error);
+  authResolved = true;
+  resolveAuthReady();
+});
+
 function openCart() {
   drawerBackdrop.hidden = false;
   drawer.classList.add("is-open");
@@ -212,8 +287,19 @@ function updateOrderPreview() {
   orderPreview.textContent = orderMessage();
 }
 
-function openOrder() {
+async function openOrder() {
   if (!cart.length) return;
+  const client = await firebaseClientPromise;
+  if (!client) {
+    showToast("ລະບົບບັນຊີຍັງບໍ່ພ້ອມ. ລອງອີກຄັ້ງພາຍຫຼັງ.");
+    return;
+  }
+  await authReady;
+  if (!currentUser) {
+    closeCart();
+    openAuthModal("login", true);
+    return;
+  }
   closeCart();
   orderForm.reset();
   orderForm.hidden = false;
@@ -265,6 +351,11 @@ import("./firebase-config.js").then(function (config) {
 async function submitOrder(event) {
   event.preventDefault();
   if (!cart.length || !orderForm.reportValidity()) return;
+  if (!currentUser) {
+    orderModal.hidden = true;
+    openAuthModal("login", true);
+    return;
+  }
 
   const button = document.getElementById("place-order");
   const proofFile = document.getElementById("payment-proof").files[0] || null;
@@ -312,6 +403,8 @@ async function submitOrder(event) {
     };
 
     await client.firestore.setDoc(orderRef, {
+      customerUid: currentUser.uid,
+      customerEmail: currentUser.email || "",
       customer: customer,
       items: items,
       total: totalPrice(),
@@ -416,6 +509,44 @@ document.querySelectorAll(".filter-chip").forEach(function (button) {
   });
 });
 document.getElementById("product-search").addEventListener("input", function (event) { renderProducts(event.target.value); });
+document.getElementById("login-open").addEventListener("click", function () { openAuthModal("login", false); });
+document.getElementById("register-open").addEventListener("click", function () { openAuthModal("register", false); });
+document.getElementById("auth-switch").addEventListener("click", function () { setAuthMode(authMode === "login" ? "register" : "login"); });
+document.getElementById("close-auth").addEventListener("click", closeAuthModal);
+authModal.addEventListener("click", function (event) { if (event.target === authModal) closeAuthModal(); });
+document.getElementById("auth-form").addEventListener("submit", async function (event) {
+  event.preventDefault();
+  const button = document.getElementById("auth-submit");
+  const status = document.getElementById("auth-status");
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const name = document.getElementById("auth-name").value.trim();
+  button.disabled = true;
+  status.textContent = authMode === "register" ? "ກຳລັງສ້າງບັນຊີ..." : "ກຳລັງເຂົ້າລະບົບ...";
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    if (authMode === "register") {
+      const credential = await client.authentication.createUserWithEmailAndPassword(client.auth, email, password);
+      await client.authentication.updateProfile(credential.user, { displayName: name });
+      updateAuthHeader(credential.user);
+      status.textContent = "ສ້າງບັນຊີສຳເລັດ.";
+    } else {
+      const credential = await client.authentication.signInWithEmailAndPassword(client.auth, email, password);
+      updateAuthHeader(credential.user);
+      status.textContent = "ເຂົ້າລະບົບສຳເລັດ.";
+    }
+  } catch (error) {
+    console.error("Customer authentication failed.", error);
+    status.textContent = "ບໍ່ສຳເລັດ. ກວດ email/password ຫຼື ການເປີດ Firebase Email/Password.";
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("logout-button").addEventListener("click", async function () {
+  const client = await firebaseClientPromise;
+  if (client) await client.authentication.signOut(client.auth);
+});
 document.getElementById("open-cart").addEventListener("click", openCart);
 document.getElementById("close-cart").addEventListener("click", closeCart);
 document.getElementById("continue-shopping").addEventListener("click", function () { closeCart(); document.getElementById("products").scrollIntoView({ behavior: "smooth" }); });
