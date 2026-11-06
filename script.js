@@ -72,74 +72,6 @@ const products = [
   }
 ];
 
-let heroImages = [
-  "./Ảnh/1793952038752_775144749478927533_8960683272696312118_59cb1f84777e2732ea7302d9759c6f55.jpg",
-  "./Ảnh/1793952038836_775144749478927533_8960683272696312118_98262a53333be379d4d26be935bd6bee.jpg",
-  "./Ảnh/1793952038800_775144749478927533_8960683272696312118_0c988ed0b31de9d0a81954d90fefd77b.jpg",
-  "./Ảnh/1793952038235_775144749478927533_8960683272696312118_22617186f198bdc034e85be04524c695.jpg",
-  "./Ảnh/1793952038273_775144749478927533_8960683272696312118_fbdbb2e8fccb3b0e7119240baea47bf9.jpg",
-  "./Ảnh/1793952038311_775144749478927533_8960683272696312118_30e366b2f89d12fdab5b9b81c58b8d99.jpg",
-  "./Ảnh/1793952038350_775144749478927533_8960683272696312118_f16cf7632dab09cfa412ec41c5dabd68.jpg",
-  "./Ảnh/1793952038391_775144749478927533_8960683272696312118_f3db8899aac9e75fc0f53cbe7dda2618.jpg",
-  "./Ảnh/1793952038431_775144749478927533_8960683272696312118_c23ba2ac5c42df176570db92e18c75ca.jpg",
-  "./Ảnh/1793952038474_775144749478927533_8960683272696312118_9ec6e608f28a7e95c8d64fa55ad17763.jpg",
-  "./Ảnh/1793952038520_775144749478927533_8960683272696312118_61bfa2c13493ab065d158bb8f06e7398.jpg",
-  "./Ảnh/1793952038559_775144749478927533_8960683272696312118_c61118f502456e54e9fef29bff680673.jpg",
-  "./Ảnh/1793952038601_775144749478927533_8960683272696312118_c9a440fcdd8278d36eb68e55871b7647.jpg",
-  "./Ảnh/1793952038636_775144749478927533_8960683272696312118_71e3bd2cd4b27f269ed03eab2b796f66.jpg",
-  "./Ảnh/1793952038674_775144749478927533_8960683272696312118_f545998ff4bab40a93cf74bfb1e0caad.jpg",
-  "./Ảnh/1793952038714_775144749478927533_8960683272696312118_6bc105f72b0c2d3ed3107f54e539f35e.jpg"
-];
-let heroImageIndex = 0;
-
-function showHeroImage(index) {
-  heroImageIndex = (index + heroImages.length) % heroImages.length;
-  const image = document.getElementById("hero-carousel-image");
-  image.src = heroImages[heroImageIndex];
-  image.alt = "ຮູບສິນຄ້າ Limon Shop " + (heroImageIndex + 1);
-  document.getElementById("hero-carousel-count").textContent = (heroImageIndex + 1) + " / " + heroImages.length;
-}
-document.getElementById("hero-previous").addEventListener("click", function () { showHeroImage(heroImageIndex - 1); });
-document.getElementById("hero-next").addEventListener("click", function () { showHeroImage(heroImageIndex + 1); });
-async function loadUploadedGalleryImages() {
-  const galleryUrl = "https://api.github.com/repos/phiphakone/Limon-shop/contents/" + encodeURIComponent("Ảnh");
-  try {
-    const response = await fetch(galleryUrl, { headers: { Accept: "application/vnd.github+json" } });
-    if (!response.ok) throw new Error("gallery_listing_unavailable");
-    const files = await response.json();
-    const imageFiles = files
-      .filter(function (file) {
-        return file.type === "file" && !file.name.startsWith(".") && !/qr[-_]?payment/i.test(file.name)
-          && /\.(avif|gif|jpe?g|png|webp)$/i.test(file.name) && file.download_url;
-      })
-      .sort(function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
-    const imageByName = new Map(imageFiles.map(function (file) { return [file.name, file.download_url]; }));
-    const productImageNames = products.map(function (product) { return product.image.split("/").pop(); });
-    const orderedNames = Array.from(new Set(productImageNames.concat(imageFiles.map(function (file) { return file.name; }))));
-    const removedHeroImages = new Set([
-      "1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg",
-      "limon-shop-logo.png"
-    ]);
-    const uploadedImages = orderedNames.filter(function (name) { return !removedHeroImages.has(name); }).map(function (name) { return imageByName.get(name); }).filter(Boolean);
-    if (uploadedImages.length) {
-      heroImages = uploadedImages;
-      showHeroImage(0);
-    }
-  } catch (error) {
-    console.warn("Could not refresh the gallery from the uploaded image folder.", error);
-  }
-}
-loadUploadedGalleryImages();
-const heroImageWrap = document.querySelector(".hero-image-wrap");
-let heroTouchStartX = null;
-heroImageWrap.addEventListener("touchstart", function (event) { heroTouchStartX = event.changedTouches[0].clientX; }, { passive: true });
-heroImageWrap.addEventListener("touchend", function (event) {
-  if (heroTouchStartX === null) return;
-  const distance = event.changedTouches[0].clientX - heroTouchStartX;
-  if (Math.abs(distance) > 45) showHeroImage(heroImageIndex + (distance < 0 ? 1 : -1));
-  heroTouchStartX = null;
-}, { passive: true });
-
 const storageKey = "limon-shop-cart-v1";
 let cart = [];
 let activeFilter = "all";
@@ -190,22 +122,27 @@ function renderProducts(searchText) {
   productGrid.innerHTML = visible.map(function (product, index) {
     const firstOption = product.options[0];
     const optionMarkup = product.options.map(function (option) {
-      return '<option value="' + option.id + '">' + option.label + ' — ' + formatMoney(option.price) + '</option>';
+      const optionName = option.label.split(" · ")[0];
+      const optionDetails = option.count
+        ? "ລວມ " + option.count + " " + firstOption.unit
+        : "ລາຄາຕໍ່ " + firstOption.unit;
+      return '<button class="option-choice" type="button" data-option-choice="' + product.id + '" data-option-id="' + option.id + '" aria-pressed="false">' +
+        '<span class="option-choice-name">' + optionName + '</span>' +
+        '<span class="option-choice-details">' + optionDetails + '</span>' +
+        '<strong class="option-choice-price">' + formatMoney(option.price) + '</strong>' +
+      '</button>';
     }).join("");
-    const savings = product.options[1].count * firstOption.price - product.options[1].price;
-    const savingsText = savings > 0 ? "ຊື້ 1 ແກັດ ປະຢັດ " + formatMoney(savings) : "1 ແກັດ ລວມ " + product.options[1].count + " " + firstOption.unit;
     return '<article class="product-card" data-product-card="' + product.id + '">' +
       '<div class="product-photo"><img src="' + product.image + '" alt="' + product.name + '" loading="lazy"><span class="product-tag">' + product.tag + '</span></div>' +
       '<div class="product-content">' +
         '<div class="product-topline"><h3 class="product-title">' + product.name + '</h3><span class="product-number">' + product.code + '</span></div>' +
         '<p class="product-subtitle">' + product.subtitle + '</p>' +
-        '<label class="product-option-label" for="option-' + product.id + '"><span>ເລືອກແບບບັນຈຸ</span></label>' +
-        '<div class="option-select-wrap"><select class="option-select" id="option-' + product.id + '" data-option-select="' + product.id + '">' + optionMarkup + '</select></div>' +
-        '<div class="price-line"><strong class="current-price" data-price="' + product.id + '">' + formatMoney(firstOption.price) + '</strong><span class="price-unit" data-unit="' + product.id + '">/ ' + firstOption.unit + '</span></div>' +
-        '<p class="bulk-note" data-bulk-note="' + product.id + '">' + savingsText + '</p>' +
+        '<p class="product-option-label">ເລືອກແບບບັນຈຸ</p>' +
+        '<div class="option-choice-list" role="group" aria-label="ເລືອກແບບບັນຈຸ">' + optionMarkup + '</div>' +
+        '<p class="option-selection-hint">ເລືອກແບບທີ່ຕ້ອງການກ່ອນສັ່ງຊື້</p>' +
         '<div class="product-actions"><div class="quantity-control" aria-label="ຈຳນວນທີ່ສັ່ງຊື້"><button type="button" data-step="-1" data-quantity-for="' + product.id + '" aria-label="ຫຼຸດຈຳນວນ">−</button><input type="number" min="1" max="99" value="1" inputmode="numeric" data-quantity-input="' + product.id + '" aria-label="ຈຳນວນທີ່ສັ່ງຊື້"><button type="button" data-step="1" data-quantity-for="' + product.id + '" aria-label="ເພີ່ມຈຳນວນ">+</button></div>' +
-        '<button class="button button-outline add-button" type="button" data-add="' + product.id + '"><span aria-hidden="true">＋</span> ໃສ່ກະຕ່າ</button>' +
-        '<button class="button button-primary add-button buy-now-button" type="button" data-buy-now="' + product.id + '"><span aria-hidden="true">↗</span> ສັ່ງຊື້ທັນທີ</button></div>' +
+        '<button class="button button-outline add-button" type="button" data-add="' + product.id + '" disabled><span aria-hidden="true">＋</span> ໃສ່ກະຕ່າ</button>' +
+        '<button class="button button-primary add-button buy-now-button" type="button" data-buy-now="' + product.id + '" disabled><span aria-hidden="true">↗</span> ສັ່ງຊື້ທັນທີ</button></div>' +
       '</div></article>';
   }).join("");
   noResults.hidden = visible.length !== 0;
@@ -324,7 +261,9 @@ function restoreDirectCart() {
 function startDirectCheckout(productId) {
   const product = productById(productId);
   if (!product) return;
-  const optionId = productGrid.querySelector('[data-option-select="' + productId + '"]').value;
+  const selectedChoice = productGrid.querySelector('[data-option-choice="' + productId + '"][aria-pressed="true"]');
+  if (!selectedChoice) return;
+  const optionId = selectedChoice.dataset.optionId;
   const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
   const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
   if (directCartBackup === null) directCartBackup = cart.map(function (item) { return { productId: item.productId, optionId: item.optionId, quantity: item.quantity }; });
@@ -450,6 +389,21 @@ async function submitOrder(event) {
 }
 
 productGrid.addEventListener("click", function (event) {
+  const optionChoice = event.target.closest("[data-option-choice]");
+  if (optionChoice) {
+    const productId = optionChoice.dataset.optionChoice;
+    const card = optionChoice.closest("[data-product-card]");
+    card.querySelectorAll("[data-option-choice]").forEach(function (choice) {
+      const isSelected = choice === optionChoice;
+      choice.setAttribute("aria-pressed", String(isSelected));
+      choice.classList.toggle("is-selected", isSelected);
+    });
+    card.querySelectorAll('[data-add="' + productId + '"], [data-buy-now="' + productId + '"]').forEach(function (button) {
+      button.disabled = false;
+    });
+    return;
+  }
+
   const stepButton = event.target.closest("[data-quantity-for]");
   if (stepButton) {
     const input = productGrid.querySelector('[data-quantity-input="' + stepButton.dataset.quantityFor + '"]');
@@ -466,7 +420,9 @@ productGrid.addEventListener("click", function (event) {
   const addButton = event.target.closest("[data-add]");
   if (addButton) {
     const productId = addButton.dataset.add;
-    const optionId = productGrid.querySelector('[data-option-select="' + productId + '"]').value;
+    const selectedChoice = productGrid.querySelector('[data-option-choice="' + productId + '"][aria-pressed="true"]');
+    if (!selectedChoice) return;
+    const optionId = selectedChoice.dataset.optionId;
     const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
     const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
     const existing = cart.find(function (item) { return item.productId === productId && item.optionId === optionId; });
@@ -474,24 +430,6 @@ productGrid.addEventListener("click", function (event) {
     else cart.push({ productId: productId, optionId: optionId, quantity: quantity });
     renderCart();
     showToast("ເພີ່ມລົງໃນກະຕ່າແລ້ວ");
-  }
-});
-
-productGrid.addEventListener("change", function (event) {
-  const select = event.target.closest("[data-option-select]");
-  if (!select) return;
-  const product = productById(select.dataset.optionSelect);
-  const option = selectedOption(product, select.value);
-  const price = productGrid.querySelector('[data-price="' + product.id + '"]');
-  const unit = productGrid.querySelector('[data-unit="' + product.id + '"]');
-  const note = productGrid.querySelector('[data-bulk-note="' + product.id + '"]');
-  price.textContent = formatMoney(option.price);
-  unit.textContent = "/ " + option.unit;
-  if (option.count) {
-    const savings = option.count * product.options[0].price - option.price;
-    note.textContent = savings > 0 ? "ຊື້ 1 ແກັດ ປະຢັດ " + formatMoney(savings) : "1 ແກັດ ລວມ " + option.count + " " + product.options[0].unit;
-  } else {
-    note.textContent = "ເລືອກຈຳນວນ " + option.unit + " ໄດ້";
   }
 });
 
