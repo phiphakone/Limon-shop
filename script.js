@@ -44,7 +44,7 @@ const products = [
     subtitle: "ແບບກ່ອງ · ລາຍກິ່ງໄມ້",
     category: "box",
     tag: "ກ່ອງລາຍກິ່ງໄມ້",
-    image: "./Ảnh/1793952038836_775144749478927533_8960683272696312118_98262a53333be379d4d26be935bd6bee.jpg",
+    image: "./Ảnh/1793952038636_775144749478927533_8960683272696312118_71e3bd2cd4b27f269ed03eab2b796f66.jpg",
     options: [
       { id: "single", label: "1 ມັດ", quantityLabel: "1 ມັດ", unit: "ມັດ", price: 22000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 24 ມັດ", quantityLabel: "1 ແກັດ (ລວມ 24 ມັດ)", unit: "ແກັດ", price: 450000, count: 24 }
@@ -57,7 +57,7 @@ const products = [
     subtitle: "ເຈ້ຍມ້ວນ · ລາຍດອກໄມ້",
     category: "roll",
     tag: "ເຈ້ຍມ້ວນ",
-    image: "./Ảnh/1793952038800_775144749478927533_8960683272696312118_0c988ed0b31de9d0a81954d90fefd77b.jpg",
+    image: "./Ảnh/1793952038431_775144749478927533_8960683272696312118_c23ba2ac5c42df176570db92e18c75ca.jpg",
     options: [
       { id: "single", label: "1 ມັດ", quantityLabel: "1 ມັດ", unit: "ມັດ", price: 25000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 24 ມັດ", quantityLabel: "1 ແກັດ (ລວມ 24 ມັດ)", unit: "ແກັດ", price: 580000, count: 24 }
@@ -70,7 +70,7 @@ const products = [
     subtitle: "ລາຍກິ່ງດອກໄມ້ · 12 ແພັກຕໍ່ແກັດ",
     category: "pack",
     tag: "ລາຍກິ່ງດອກໄມ້",
-    image: "./Ảnh/1793952038235_775144749478927533_8960683272696312118_22617186f198bdc034e85be04524c695.jpg",
+    image: "./Ảnh/1793952038474_775144749478927533_8960683272696312118_9ec6e608f28a7e95c8d64fa55ad17763.jpg",
     options: [
       { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 39000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 12 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 12 ແພັກ)", unit: "ແກັດ", price: 440000, count: 12 }
@@ -78,7 +78,7 @@ const products = [
   }
 ];
 
-const heroImages = [
+let heroImages = [
   "./Ảnh/1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg",
   "./Ảnh/1793952038752_775144749478927533_8960683272696312118_59cb1f84777e2732ea7302d9759c6f55.jpg",
   "./Ảnh/1793952038836_775144749478927533_8960683272696312118_98262a53333be379d4d26be935bd6bee.jpg",
@@ -108,6 +108,31 @@ function showHeroImage(index) {
 }
 document.getElementById("hero-previous").addEventListener("click", function () { showHeroImage(heroImageIndex - 1); });
 document.getElementById("hero-next").addEventListener("click", function () { showHeroImage(heroImageIndex + 1); });
+async function loadUploadedGalleryImages() {
+  const galleryUrl = "https://api.github.com/repos/phiphakone/Limon-shop/contents/" + encodeURIComponent("Ảnh");
+  try {
+    const response = await fetch(galleryUrl, { headers: { Accept: "application/vnd.github+json" } });
+    if (!response.ok) throw new Error("gallery_listing_unavailable");
+    const files = await response.json();
+    const imageFiles = files
+      .filter(function (file) {
+        return file.type === "file" && !file.name.startsWith(".") && !/qr[-_]?payment/i.test(file.name)
+          && /\.(avif|gif|jpe?g|png|webp)$/i.test(file.name) && file.download_url;
+      })
+      .sort(function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
+    const imageByName = new Map(imageFiles.map(function (file) { return [file.name, file.download_url]; }));
+    const productImageNames = products.map(function (product) { return product.image.split("/").pop(); });
+    const orderedNames = Array.from(new Set(productImageNames.concat(imageFiles.map(function (file) { return file.name; }))));
+    const uploadedImages = orderedNames.map(function (name) { return imageByName.get(name); }).filter(Boolean);
+    if (uploadedImages.length) {
+      heroImages = uploadedImages;
+      showHeroImage(0);
+    }
+  } catch (error) {
+    console.warn("Could not refresh the gallery from the uploaded image folder.", error);
+  }
+}
+loadUploadedGalleryImages();
 const heroImageWrap = document.querySelector(".hero-image-wrap");
 let heroTouchStartX = null;
 heroImageWrap.addEventListener("touchstart", function (event) { heroTouchStartX = event.changedTouches[0].clientX; }, { passive: true });
