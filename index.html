@@ -8,8 +8,8 @@
   <title>Limon Shop — ຮ້ານເຈ້ຍທິດຊູ</title>
   <link rel="preconnect" href="https://fonts.mts.la" crossorigin>
   <link rel="stylesheet" href="https://fonts.mts.la/fonts/phetsarath-ot/phetsarath-ot.css">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./script.js" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=20261106-account">
+  <script src="./script.js?v=20261106-account" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -24,6 +24,17 @@
     </nav>
 
     <div class="header-actions">
+      <div class="account-area" id="account-area">
+        <button class="account-open" id="account-open" type="button" aria-haspopup="dialog" aria-label="ເປີດບັນຊີ">
+          <span class="account-avatar" id="account-avatar" aria-hidden="true">👤</span>
+          <span class="account-label" id="account-label">ບັນຊີ</span>
+        </button>
+        <div class="account-menu" id="account-menu" hidden>
+          <strong id="account-menu-name"></strong>
+          <span id="account-menu-email"></span>
+          <button class="button button-quiet button-wide" id="account-sign-out" type="button">ອອກຈາກລະບົບ</button>
+        </div>
+      </div>
       <button class="cart-open" id="open-cart" type="button" aria-label="ເປີດກະຕ່າສິນຄ້າ">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 4.5h2l2.1 10.1a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 1.9-1.4l1.6-6.1H6.1M10 20a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Zm7.2 0a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span class="cart-label">ກະຕ່າ</span>
@@ -60,7 +71,7 @@
         <div class="how-intro">
           <span class="eyebrow"><span></span> ສັ່ງຊື້ໃນ 3 ຂັ້ນຕອນ</span>
           <h2>ເລືອກສິນຄ້າ<br><em>ສົ່ງຄຳສັ່ງຊື້</em>ໃຫ້ຮ້ານ.</h2>
-          <a class="text-link" href="https://www.facebook.com/mon.mon.602100" target="_blank" rel="noreferrer">ເປີດ Facebook ຂອງຮ້ານ <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="https://www.facebook.com/profile.php?id=61596329459044&rdid=AwJJqnTlbzwqRck1&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1DraSRR1PH%2F#" target="_blank" rel="noreferrer">ເປີດ Facebook ຂອງຮ້ານ <span aria-hidden="true">↗</span></a>
         </div>
         <ol class="steps">
           <li><span>01</span><div><strong>ເລືອກສິນຄ້າ</strong><p>ບໍ່ຕ້ອງລົງທະບຽນ ເລືອກສິນຄ້າແລ້ວກົດສັ່ງຊື້ໄດ້ເລີຍ.</p></div></li>
@@ -77,7 +88,7 @@
         <img class="brand-logo" src="./logo-limon-shop.webp?v=20261106" alt="Limon Shop ຮ້ານເຈ້ຍທິດຊູ">
       </a>
       <p>ສັ່ງຊື້ຜ່ານເວັບໄຊ ແລະ ສອບຖາມສະຖານະກັບຮ້ານໄດ້.</p>
-      <div class="footer-links"><a class="footer-social" href="https://www.facebook.com/mon.mon.602100" target="_blank" rel="noreferrer">Facebook <span aria-hidden="true">↗</span></a><a class="footer-admin" href="./admin.html">ສຳລັບຜູ້ດູແລຮ້ານ</a></div>
+      <div class="footer-links"><a class="footer-social" href="https://www.facebook.com/profile.php?id=61596329459044&rdid=AwJJqnTlbzwqRck1&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1DraSRR1PH%2F#" target="_blank" rel="noreferrer">Facebook <span aria-hidden="true">↗</span></a><a class="footer-admin" href="./admin.html">ສຳລັບຜູ້ດູແລຮ້ານ</a></div>
     </div>
   </footer>
 
@@ -95,6 +106,37 @@
       <div class="drawer-actions"><button class="button button-quiet" id="clear-cart" type="button">ລ້າງກະຕ່າ</button><button class="button button-primary" id="checkout-button" type="button">ດຳເນີນການສັ່ງຊື້ <span aria-hidden="true">→</span></button></div>
     </div>
   </aside>
+
+  <div class="modal-backdrop account-modal-backdrop" id="account-modal" hidden>
+    <section class="order-modal account-modal" role="dialog" aria-modal="true" aria-labelledby="account-title">
+      <div class="modal-head">
+        <div><span class="eyebrow"><span></span> LIMON SHOP</span><h2 id="account-title">ບັນຊີຂອງຂ້ອຍ</h2></div>
+        <button class="icon-button" id="account-close" type="button" aria-label="ປິດໜ້າບັນຊີ">×</button>
+      </div>
+      <p class="modal-description">ສະໝັກຫຼືເຂົ້າລະບົບເພື່ອໃຊ້ບັນຊີຂອງທ່ານ. ສາມາດສັ່ງຊື້ໂດຍບໍ່ມີບັນຊີໄດ້.</p>
+      <div class="account-mode-switch" role="tablist" aria-label="ເລືອກການໃຊ້ບັນຊີ">
+        <button type="button" class="is-active" data-account-mode="register" role="tab" aria-selected="true">ລົງທະບຽນ</button>
+        <button type="button" data-account-mode="login" role="tab" aria-selected="false">ເຂົ້າລະບົບ</button>
+      </div>
+      <button class="button button-outline button-wide account-google-button" id="account-google" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.6a12 12 0 0 1 0-7.2v-5.3H5.8a20 20 0 0 0 0 17.8l6.8-5.3Z"/><path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3l5.8-5.8C34.1 5.9 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.3C14.2 15.6 18.7 12 24 12Z"/></svg>
+        ດຳເນີນການດ້ວຍ Google
+      </button>
+      <div class="account-divider"><span>ຫຼື ໃຊ້ອີເມວ</span></div>
+      <form id="account-form">
+        <div id="account-name-field">
+          <label class="field-label" for="account-name">ຊື່</label>
+          <input class="text-field" id="account-name" name="name" type="text" autocomplete="name" maxlength="100" required>
+        </div>
+        <label class="field-label" for="account-email">ອີເມວ</label>
+        <input class="text-field" id="account-email" name="email" type="email" autocomplete="email" required>
+        <label class="field-label" for="account-password">ລະຫັດຜ່ານ</label>
+        <input class="text-field" id="account-password" name="password" type="password" autocomplete="new-password" minlength="6" required>
+        <button class="button button-primary button-wide account-submit" id="account-submit" type="submit">ລົງທະບຽນ</button>
+      </form>
+      <p class="account-message" id="account-message" role="status" aria-live="polite"></p>
+    </section>
+  </div>
 
   <div class="modal-backdrop" id="order-modal" hidden>
     <section class="order-modal" role="dialog" aria-modal="true" aria-labelledby="order-title">

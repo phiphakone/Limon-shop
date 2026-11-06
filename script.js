@@ -1,4 +1,4 @@
-const facebookUrl = "https://www.facebook.com/mon.mon.602100";
+const facebookUrl = "https://www.facebook.com/profile.php?id=61596329459044&rdid=AwJJqnTlbzwqRck1&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1DraSRR1PH%2F#";
 const firebaseClientPromise = import("./firebase-client.js").catch(function (error) {
   console.error("Firebase SDK could not be loaded.", error);
   return null;
@@ -12,7 +12,7 @@ const products = [
     subtitle: "ລາຍຊ້າງ · ຂາຍແບບແພັກ",
     category: "pack",
     tag: "ລາຍຊ້າງ",
-    image: "./Ảnh/1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg",
+    image: "./Ảnh/product-l01.webp",
     options: [
       { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 30000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 15 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 15 ແພັກ)", unit: "ແກັດ", price: 420000, count: 15 }
@@ -25,7 +25,7 @@ const products = [
     subtitle: "ແບບກ່ອງ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "box",
     tag: "ລາຍດອກໄມ້",
-    image: "./Ảnh/1793952038752_775144749478927533_8960683272696312118_59cb1f84777e2732ea7302d9759c6f55.jpg",
+    image: "./Ảnh/product-l02.webp",
     options: [
       { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 45000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 10 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 10 ແພັກ)", unit: "ແກັດ", price: 430000, count: 10 }
@@ -38,7 +38,7 @@ const products = [
     subtitle: "ແບບກ່ອງ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "box",
     tag: "ກ່ອງລາຍກິ່ງໄມ້",
-    image: "./Ảnh/1793952038636_775144749478927533_8960683272696312118_71e3bd2cd4b27f269ed03eab2b796f66.jpg",
+    image: "./Ảnh/product-l03.webp",
     options: [
       { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 22000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 450000, count: 24 }
@@ -51,7 +51,7 @@ const products = [
     subtitle: "ເຈ້ຍມ້ວນ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "roll",
     tag: "ເຈ້ຍມ້ວນ",
-    image: "./Ảnh/1793952038431_775144749478927533_8960683272696312118_c23ba2ac5c42df176570db92e18c75ca.jpg",
+    image: "./Ảnh/product-l04.webp",
     options: [
       { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 25000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 580000, count: 24 }
@@ -64,7 +64,7 @@ const products = [
     subtitle: "ລາຍກິ່ງດອກຈໍາປາ · 12 ແພັກຕໍ່ແກັດ",
     category: "pack",
     tag: "ລາຍກິ່ງດອກໄມ້",
-    image: "./Ảnh/1793952038474_775144749478927533_8960683272696312118_9ec6e608f28a7e95c8d64fa55ad17763.jpg",
+    image: "./Ảnh/product-l05.webp",
     options: [
       { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 39000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 12 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 12 ແພັກ)", unit: "ແກັດ", price: 440000, count: 12 }
@@ -98,6 +98,13 @@ const orderPreview = document.getElementById("order-preview");
 const orderForm = document.getElementById("order-form");
 const orderSuccess = document.getElementById("order-success");
 const toast = document.getElementById("toast");
+const accountArea = document.getElementById("account-area");
+const accountMenu = document.getElementById("account-menu");
+const accountModal = document.getElementById("account-modal");
+const accountForm = document.getElementById("account-form");
+const accountMessage = document.getElementById("account-message");
+let currentAccountUser = null;
+let accountMode = "register";
 
 function formatMoney(amount) {
   return new Intl.NumberFormat("lo-LA").format(amount) + " ₭";
@@ -187,6 +194,77 @@ function showToast(message) {
   window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(function () { toast.classList.remove("is-visible"); }, 2300);
 }
+
+function updateAccountButton(user) {
+  currentAccountUser = user || null;
+  const button = document.getElementById("account-open");
+  const label = document.getElementById("account-label");
+  const avatar = document.getElementById("account-avatar");
+  if (!currentAccountUser) {
+    label.textContent = "ບັນຊີ";
+    avatar.textContent = "👤";
+    button.setAttribute("aria-label", "ລົງທະບຽນ ຫຼື ເຂົ້າລະບົບ");
+    accountMenu.hidden = true;
+    return;
+  }
+  const name = currentAccountUser.displayName || currentAccountUser.email || "ບັນຊີ";
+  label.textContent = name;
+  avatar.textContent = Array.from(name.trim())[0] || "👤";
+  button.setAttribute("aria-label", "ບັນຊີ " + name);
+  document.getElementById("account-menu-name").textContent = currentAccountUser.displayName || "ບັນຊີ Limon Shop";
+  document.getElementById("account-menu-email").textContent = currentAccountUser.email || "";
+}
+
+function setAccountMode(mode) {
+  accountMode = mode === "login" ? "login" : "register";
+  const isRegister = accountMode === "register";
+  const nameField = document.getElementById("account-name-field");
+  const nameInput = document.getElementById("account-name");
+  nameField.hidden = !isRegister;
+  nameInput.required = isRegister;
+  document.getElementById("account-password").autocomplete = isRegister ? "new-password" : "current-password";
+  document.getElementById("account-submit").textContent = isRegister ? "ລົງທະບຽນ" : "ເຂົ້າລະບົບ";
+  document.querySelectorAll("[data-account-mode]").forEach(function (button) {
+    const selected = button.dataset.accountMode === accountMode;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-selected", String(selected));
+  });
+  accountMessage.textContent = "";
+}
+
+function openAccountModal(mode) {
+  accountMenu.hidden = true;
+  setAccountMode(mode);
+  accountForm.reset();
+  accountModal.hidden = false;
+  document.body.classList.add("has-overlay");
+  document.getElementById(isAccountRegisterMode() ? "account-name" : "account-email").focus();
+}
+
+function isAccountRegisterMode() {
+  return accountMode === "register";
+}
+
+function closeAccountModal() {
+  accountModal.hidden = true;
+  if (orderModal.hidden && !drawer.classList.contains("is-open")) document.body.classList.remove("has-overlay");
+}
+
+function accountAuthError(error) {
+  if (error.code === "auth/email-already-in-use") return "ອີເມວນີ້ມີບັນຊີແລ້ວ. ລອງເຂົ້າລະບົບແທນ.";
+  if (error.code === "auth/weak-password") return "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ.";
+  if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found") return "ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ.";
+  if (error.code === "auth/popup-blocked") return "ບຣາວເຊີບລັອກໜ້າ Google. ອະນຸຍາດ popup ແລ້ວລອງໃໝ່.";
+  if (error.code === "auth/unauthorized-domain") return "ໂດເມນນີ້ຍັງບໍ່ຖືກເພີ່ມໃນ Firebase Authorized domains.";
+  return "ດຳເນີນການບໍ່ສຳເລັດ. ກວດອີເມວ ແລະ ລອງໃໝ່.";
+}
+
+firebaseClientPromise.then(function (client) {
+  if (!client) return;
+  client.authentication.onAuthStateChanged(client.auth, updateAccountButton);
+}).catch(function (error) {
+  console.error("Account status could not be loaded.", error);
+});
 
 function openCart() {
   drawerBackdrop.hidden = false;
@@ -308,20 +386,6 @@ async function copyOrder() {
     return false;
   }
 }
-
-function renderPaymentAccount(details) {
-  const account = document.getElementById("payment-account");
-  const parts = [details.bankName, details.accountName, details.accountNumber].filter(Boolean);
-  account.textContent = parts.join(" · ");
-  const qr = document.getElementById("payment-qr");
-  if (details.qrImage) qr.src = details.qrImage;
-}
-
-import("./firebase-config.js").then(function (config) {
-  renderPaymentAccount(config.PAYMENT_DETAILS);
-}).catch(function (error) {
-  console.warn("Payment details could not be loaded.", error);
-});
 
 async function submitOrder(event) {
   event.preventDefault();
@@ -457,6 +521,94 @@ document.querySelectorAll(".filter-chip").forEach(function (button) {
 document.getElementById("product-search").addEventListener("input", function (event) { renderProducts(event.target.value); });
 document.getElementById("open-cart").addEventListener("click", openCart);
 document.getElementById("close-cart").addEventListener("click", closeCart);
+document.getElementById("account-open").addEventListener("click", function () {
+  if (currentAccountUser) {
+    accountMenu.hidden = !accountMenu.hidden;
+    return;
+  }
+  openAccountModal("register");
+});
+document.querySelectorAll("[data-account-mode]").forEach(function (button) {
+  button.addEventListener("click", function () { setAccountMode(button.dataset.accountMode); });
+});
+document.getElementById("account-close").addEventListener("click", closeAccountModal);
+accountModal.addEventListener("click", function (event) {
+  if (event.target === accountModal) closeAccountModal();
+});
+document.addEventListener("click", function (event) {
+  if (!accountArea.contains(event.target)) accountMenu.hidden = true;
+});
+accountForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  if (!accountForm.reportValidity()) return;
+  const submitButton = document.getElementById("account-submit");
+  const email = document.getElementById("account-email").value.trim().toLowerCase();
+  const password = document.getElementById("account-password").value;
+  const name = document.getElementById("account-name").value.trim();
+  submitButton.disabled = true;
+  submitButton.textContent = accountMode === "register" ? "ກຳລັງລົງທະບຽນ..." : "ກຳລັງເຂົ້າລະບົບ...";
+  accountMessage.textContent = "";
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    if (accountMode === "register") {
+      const credential = await client.authentication.createUserWithEmailAndPassword(client.auth, email, password);
+      if (name) {
+        try {
+          await client.authentication.updateProfile(credential.user, { displayName: name });
+        } catch (profileError) {
+          console.warn("The account was created, but its display name could not be saved.", profileError);
+        }
+      }
+      updateAccountButton(credential.user);
+      closeAccountModal();
+      showToast("ລົງທະບຽນສຳເລັດ. ບັນຊີຂອງທ່ານຢູ່ມຸມຂວາເທິງແລ້ວ.");
+    } else {
+      const credential = await client.authentication.signInWithEmailAndPassword(client.auth, email, password);
+      updateAccountButton(credential.user);
+      closeAccountModal();
+      showToast("ເຂົ້າລະບົບແລ້ວ.");
+    }
+  } catch (error) {
+    console.error("Customer account authentication failed.", error);
+    accountMessage.textContent = accountAuthError(error);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = accountMode === "register" ? "ລົງທະບຽນ" : "ເຂົ້າລະບົບ";
+  }
+});
+document.getElementById("account-google").addEventListener("click", async function () {
+  const button = document.getElementById("account-google");
+  button.disabled = true;
+  accountMessage.textContent = "ກຳລັງເປີດ Google...";
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    const provider = new client.authentication.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await client.authentication.signInWithPopup(client.auth, provider);
+    updateAccountButton(credential.user);
+    closeAccountModal();
+    showToast("ເຂົ້າລະບົບ Google ແລ້ວ.");
+  } catch (error) {
+    console.error("Customer Google sign in failed.", error);
+    accountMessage.textContent = accountAuthError(error);
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById("account-sign-out").addEventListener("click", async function () {
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    await client.authentication.signOut(client.auth);
+    accountMenu.hidden = true;
+    showToast("ອອກຈາກລະບົບແລ້ວ.");
+  } catch (error) {
+    console.error("Customer sign out failed.", error);
+    showToast("ອອກຈາກລະບົບບໍ່ສຳເລັດ. ລອງໃໝ່.");
+  }
+});
 document.getElementById("continue-shopping").addEventListener("click", function () { closeCart(); document.getElementById("products").scrollIntoView({ behavior: "smooth" }); });
 document.getElementById("clear-cart").addEventListener("click", function () {
   cart = [];
@@ -496,7 +648,8 @@ orderSuccess.addEventListener("click", function (event) {
 });
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") {
-    if (!orderModal.hidden) closeOrder();
+    if (!accountModal.hidden) closeAccountModal();
+    else if (!orderModal.hidden) closeOrder();
     else if (drawer.classList.contains("is-open")) closeCart();
   }
 });

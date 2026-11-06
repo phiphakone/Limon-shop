@@ -11,10 +11,3 @@ export const firebaseConfig = {
 // The same email must be used by the Firestore and Storage rules.
 export const ADMIN_EMAIL = "ppk.bm.30@gmail.com";
 
-export const PAYMENT_DETAILS = {
-  bankName: "BCEL",
-  accountName: "LAIMONE BOUNMA MS",
-  accountNumber: "050-12-xxxxx455",
-  currency: "LAK",
-  qrImage: "./Ảnh/qr-payment.png"
-};
