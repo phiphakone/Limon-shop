@@ -543,6 +543,26 @@ document.getElementById("auth-form").addEventListener("submit", async function (
     button.disabled = false;
   }
 });
+document.getElementById("google-login").addEventListener("click", async function () {
+  const button = document.getElementById("google-login");
+  const status = document.getElementById("auth-status");
+  button.disabled = true;
+  status.textContent = "ກຳລັງເຊື່ອມຕໍ່ Google...";
+  try {
+    const client = await firebaseClientPromise;
+    if (!client) throw new Error("firebase_sdk_unavailable");
+    const provider = new client.authentication.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await client.authentication.signInWithPopup(client.auth, provider);
+    updateAuthHeader(credential.user);
+    status.textContent = "ເຂົ້າລະບົບດ້ວຍ Google ສຳເລັດ.";
+  } catch (error) {
+    console.error("Google sign-in failed.", error);
+    status.textContent = "ເຊື່ອມຕໍ່ບໍ່ສຳເລັດ. ກວດ Google provider ແລະ Authorized domains ໃນ Firebase.";
+  } finally {
+    button.disabled = false;
+  }
+});
 document.getElementById("logout-button").addEventListener("click", async function () {
   const client = await firebaseClientPromise;
   if (client) await client.authentication.signOut(client.auth);

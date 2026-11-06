@@ -215,6 +215,12 @@ img { display: block; max-width: 100%; }
 .footer-admin:hover { color: var(--blue-deep); }
 .auth-modal form { display: grid; gap: 3px; }
 .auth-modal form .button { margin-top: 13px; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 13px 0; color: #8da0ad; font-size: 8px; }
+.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: #e7eff4; content: ""; }
+.google-auth-button { width: 100%; min-height: 43px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #dce6ec; border-radius: 10px; color: #304b5e; background: white; font-size: 10px; font-weight: 600; cursor: pointer; transition: background .18s, border-color .18s; }
+.google-auth-button:hover { border-color: #bed5e3; background: #f8fbfd; }
+.google-auth-button svg { width: 17px; height: 17px; }
+.google-auth-button:disabled { opacity: .65; cursor: wait; }
 .auth-switch { margin: 13px 0 0; color: #71899a; text-align: center; font-size: 9px; }
 .auth-switch button { padding: 0 4px; border: 0; color: var(--blue-deep); background: transparent; font-family: var(--font); font-size: inherit; font-weight: 700; cursor: pointer; }
 

@@ -13,9 +13,11 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
+  GoogleAuthProvider,
   getAuth,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithPopup,
   signInWithEmailAndPassword,
   signOut,
   updateProfile
@@ -46,8 +48,10 @@ export const firestore = {
   updateDoc
 };
 export const authentication = {
+  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithPopup,
   signInWithEmailAndPassword,
   signOut,
   updateProfile
