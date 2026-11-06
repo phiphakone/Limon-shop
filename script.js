@@ -7,6 +7,7 @@ let currentUser = null;
 let authResolved = false;
 let authMode = "login";
 let pendingCheckout = false;
+let directCartBackup = null;
 let resolveAuthReady;
 const authReady = new Promise(function (resolve) { resolveAuthReady = resolve; });
 const products = [
@@ -137,7 +138,8 @@ function renderProducts(searchText) {
         '<div class="price-line"><strong class="current-price" data-price="' + product.id + '">' + formatMoney(firstOption.price) + '</strong><span class="price-unit" data-unit="' + product.id + '">/ ' + firstOption.unit + '</span></div>' +
         '<p class="bulk-note" data-bulk-note="' + product.id + '">' + savingsText + '</p>' +
         '<div class="product-actions"><div class="quantity-control" aria-label="ຈຳນວນ"><button type="button" data-step="-1" data-quantity-for="' + product.id + '" aria-label="ຫຼຸດຈຳນວນ">−</button><input type="number" min="1" max="99" value="1" inputmode="numeric" data-quantity-input="' + product.id + '" aria-label="ຈຳນວນສິນຄ້າ"><button type="button" data-step="1" data-quantity-for="' + product.id + '" aria-label="ເພີ່ມຈຳນວນ">+</button></div>' +
-        '<button class="button button-primary add-button" type="button" data-add="' + product.id + '"><span aria-hidden="true">＋</span> ເພີ່ມໃສ່ກະຕ່າ</button></div>' +
+        '<button class="button button-outline add-button" type="button" data-add="' + product.id + '"><span aria-hidden="true">＋</span> ໃສ່ກະຕ່າ</button>' +
+        '<button class="button button-primary add-button buy-now-button" type="button" data-buy-now="' + product.id + '"><span aria-hidden="true">↗</span> ຊື້ເລີຍ</button></div>' +
       '</div></article>';
   }).join("");
   noResults.hidden = visible.length !== 0;
@@ -212,9 +214,13 @@ function openAuthModal(mode, checkoutPending) {
   document.getElementById("auth-email").focus();
 }
 
-function closeAuthModal() {
+function closeAuthModal(restorePurchase) {
   authModal.hidden = true;
   document.body.classList.remove("has-overlay");
+  if (restorePurchase) {
+    pendingCheckout = false;
+    restoreDirectCart();
+  }
 }
 
 function updateAuthHeader(user) {
@@ -291,6 +297,7 @@ async function openOrder() {
   if (!cart.length) return;
   const client = await firebaseClientPromise;
   if (!client) {
+    restoreDirectCart();
     showToast("ລະບົບບັນຊີຍັງບໍ່ພ້ອມ. ລອງອີກຄັ້ງພາຍຫຼັງ.");
     return;
   }
@@ -314,6 +321,26 @@ async function openOrder() {
 function closeOrder() {
   orderModal.hidden = true;
   document.body.classList.remove("has-overlay");
+  restoreDirectCart();
+}
+
+function restoreDirectCart() {
+  if (directCartBackup === null) return;
+  cart = directCartBackup;
+  directCartBackup = null;
+  renderCart();
+}
+
+function startDirectCheckout(productId) {
+  const product = productById(productId);
+  if (!product) return;
+  const optionId = productGrid.querySelector('[data-option-select="' + productId + '"]').value;
+  const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
+  const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
+  if (directCartBackup === null) directCartBackup = cart.map(function (item) { return { productId: item.productId, optionId: item.optionId, quantity: item.quantity }; });
+  cart = [{ productId: productId, optionId: optionId, quantity: quantity }];
+  renderCart();
+  openOrder();
 }
 
 async function copyOrder() {
@@ -442,6 +469,10 @@ async function submitOrder(event) {
   if (!orderSaved) return;
 
   cart = [];
+  if (directCartBackup !== null) {
+    cart = directCartBackup;
+    directCartBackup = null;
+  }
   renderCart();
   orderForm.hidden = true;
   orderSuccess.hidden = false;
@@ -462,18 +493,23 @@ productGrid.addEventListener("click", function (event) {
     return;
   }
 
+  const buyButton = event.target.closest("[data-buy-now]");
+  if (buyButton) {
+    startDirectCheckout(buyButton.dataset.buyNow);
+    return;
+  }
+
   const addButton = event.target.closest("[data-add]");
   if (addButton) {
     const productId = addButton.dataset.add;
-    const product = productById(productId);
     const optionId = productGrid.querySelector('[data-option-select="' + productId + '"]').value;
-    const input = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
-    const quantity = Math.max(1, Math.min(99, Number(input.value) || 1));
+    const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
+    const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
     const existing = cart.find(function (item) { return item.productId === productId && item.optionId === optionId; });
     if (existing) existing.quantity = Math.min(99, Number(existing.quantity) + quantity);
     else cart.push({ productId: productId, optionId: optionId, quantity: quantity });
     renderCart();
-    showToast("ເພີ່ມ " + product.name + " ໃສ່ກະຕ່າແລ້ວ");
+    showToast("ເພີ່ມລົງໃນກະຕ່າແລ້ວ");
   }
 });
 
@@ -512,8 +548,8 @@ document.getElementById("product-search").addEventListener("input", function (ev
 document.getElementById("login-open").addEventListener("click", function () { openAuthModal("login", false); });
 document.getElementById("register-open").addEventListener("click", function () { openAuthModal("register", false); });
 document.getElementById("auth-switch").addEventListener("click", function () { setAuthMode(authMode === "login" ? "register" : "login"); });
-document.getElementById("close-auth").addEventListener("click", closeAuthModal);
-authModal.addEventListener("click", function (event) { if (event.target === authModal) closeAuthModal(); });
+document.getElementById("close-auth").addEventListener("click", function () { closeAuthModal(true); });
+authModal.addEventListener("click", function (event) { if (event.target === authModal) closeAuthModal(true); });
 document.getElementById("auth-form").addEventListener("submit", async function (event) {
   event.preventDefault();
   const button = document.getElementById("auth-submit");
@@ -609,6 +645,7 @@ orderSuccess.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") {
     if (!orderModal.hidden) closeOrder();
+    else if (!authModal.hidden) closeAuthModal(true);
     else if (drawer.classList.contains("is-open")) closeCart();
   }
 });
