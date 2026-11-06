@@ -19,6 +19,7 @@ const statusLabels = {
   cancelled: "ຍົກເລີກ"
 };
 const paymentLabels = {
+  pay_on_delivery: "ຊຳລະປາຍທາງ",
   awaiting_payment: "ລໍຖ້າຊຳລະ",
   awaiting_proof_upload: "ລໍຖ້າອັບໂຫຼດຫຼັກຖານການໂອນ",
   proof_submitted: "ສົ່ງຫຼັກຖານແລ້ວ · ລໍຖ້າກວດສອບ",

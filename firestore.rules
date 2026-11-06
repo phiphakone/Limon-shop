@@ -7,31 +7,29 @@ service cloud.firestore {
     function validNewOrder(orderId) {
       let data = request.resource.data;
       let customer = data.customer;
-      return request.auth != null
-        && data.keys().hasAll(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
+      return data.keys().hasAll(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
         && data.keys().hasOnly(['customerUid', 'customerEmail', 'customer', 'items', 'total', 'currency', 'paymentMethod', 'paymentStatus', 'paymentProofPath', 'orderStatus', 'createdAt'])
-        && data.customerUid == request.auth.uid
-        && data.customerEmail == request.auth.token.email
+        && data.customerUid == ''
+        && data.customerEmail == ''
         && customer is map
-        && customer.keys().hasAll(['name', 'phone', 'address', 'note'])
-        && customer.keys().hasOnly(['name', 'phone', 'address', 'note'])
+        && customer.keys().hasAll(['name', 'phone', 'address', 'deliveryArea', 'note'])
+        && customer.keys().hasOnly(['name', 'phone', 'address', 'deliveryArea', 'note'])
         && customer.name is string && customer.name.size() >= 2 && customer.name.size() <= 100
         && customer.phone is string && customer.phone.size() >= 5 && customer.phone.size() <= 32
         && customer.address is string && customer.address.size() >= 4 && customer.address.size() <= 500
+        && customer.deliveryArea == 'luang-prabang-town'
         && customer.note is string && customer.note.size() <= 300
         && data.items is list && data.items.size() > 0 && data.items.size() <= 10
         && data.total is int && data.total > 0 && data.total <= 100000000
         && data.currency == 'LAK'
-        && data.paymentMethod == 'BCEL QR'
-        && data.paymentStatus in ['awaiting_payment', 'awaiting_proof_upload']
-        && data.paymentProofPath is string
-        && ((data.paymentStatus == 'awaiting_payment' && data.paymentProofPath == '')
-          || (data.paymentStatus == 'awaiting_proof_upload' && data.paymentProofPath == 'payment-proofs/' + orderId + '/receipt'))
+        && data.paymentMethod == 'cash_on_delivery'
+        && data.paymentStatus == 'pay_on_delivery'
+        && data.paymentProofPath == ''
         && data.orderStatus == 'new'
         && data.createdAt == request.time;
     }
     match /orders/{orderId} {
-      allow create: if request.auth != null && validNewOrder(orderId);
+      allow create: if validNewOrder(orderId);
       allow get, list: if isAdmin();
       allow update: if (
           isAdmin()

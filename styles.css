@@ -25,7 +25,8 @@ img { display: block; max-width: 100%; }
 
 .eyebrow > span { width: 7px; height: 7px; display: inline-block; flex: 0 0 auto; border-radius: 50%; background: #8dd7ec; }
 .site-header { height: 82px; width: min(1290px, calc(100% - 56px)); margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid #edf3f7; }
-.brand { display: inline-flex; align-items: center; gap: 11px; min-width: 220px; }
+.brand { display: inline-flex; align-items: center; min-width: 220px; }
+.brand-logo { display: block; width: 190px; height: 74px; object-fit: contain; }
 .brand-mark { width: 41px; height: 41px; display: grid; place-items: center; color: var(--blue); background: #edf7fd; border-radius: 13px; }
 .brand-mark svg { width: 31px; height: 31px; }
 .brand-copy { display: flex; flex-direction: column; line-height: 1.3; }
@@ -64,9 +65,6 @@ img { display: block; max-width: 100%; }
 .button-quiet:hover { background: var(--blue-light); }
 .button-wide { width: 100%; }
 .text-link { display: inline-flex; align-items: center; gap: 8px; color: #456c88; font-size: 11px; font-weight: 600; transition: color .2s; }
-.hero-points { display: flex; gap: 25px; margin-top: 50px; }
-.hero-points > div { display: flex; align-items: center; gap: 9px; color: #597184; font-size: 9px; line-height: 1.7; }
-.point-icon { width: 30px; height: 30px; display: grid; place-items: center; flex: 0 0 auto; color: var(--blue-deep); background: var(--blue-pale); border: 1px solid #d9edf8; border-radius: 10px; font-size: 8px; font-weight: 700; }
 .hero-visual { position: relative; width: min(100%, 490px); justify-self: end; padding: 0 20px 20px 0; }
 .hero-image-wrap { position: relative; height: 435px; overflow: hidden; background: #e3f2fa; border-radius: 42% 42% 25px 25px; }
 .hero-image-wrap::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,40,61,0) 68%, rgba(13,40,61,.15)); content: ""; pointer-events: none; }
@@ -269,8 +267,6 @@ img { display: block; max-width: 100%; }
 @media (max-width: 900px) {
   .hero { gap: 26px; }
   .hero-copy { padding-left: 0; }
-  .hero-points { gap: 13px; }
-  .hero-points > div { font-size: 8px; }
   .hero-image-wrap { height: 390px; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .how-inner { gap: 45px; }
@@ -278,7 +274,8 @@ img { display: block; max-width: 100%; }
 @media (max-width: 640px) {
   .page-width, .site-header { width: calc(100% - 34px); }
   .site-header { height: 68px; gap: 8px; }
-  .brand { min-width: 0; gap: 8px; }
+  .brand { min-width: 0; }
+  .brand-logo { width: 145px; height: 58px; }
   .brand-mark { width: 37px; height: 37px; border-radius: 12px; }
   .brand-mark svg { width: 28px; height: 28px; }
   .brand-copy strong { font-size: 12px; }
@@ -297,9 +294,6 @@ img { display: block; max-width: 100%; }
   .hero-description { max-width: 385px; font-size: 11px; }
   .hero-actions { gap: 18px; margin-top: 21px; }
   .button { min-height: 42px; font-size: 10px; }
-  .hero-points { justify-content: space-between; gap: 5px; margin-top: 27px; }
-  .hero-points > div { gap: 6px; font-size: 7px; }
-  .point-icon { width: 26px; height: 26px; border-radius: 8px; font-size: 7px; }
   .hero-visual { width: calc(100% - 13px); justify-self: center; padding: 0 11px 15px 0; }
   .hero-image-wrap { height: min(92vw, 400px); border-radius: 39% 39% 20px 20px; }
   .hero-image-wrap { outline-offset: 7px; }

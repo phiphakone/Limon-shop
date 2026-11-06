@@ -3,13 +3,7 @@ const firebaseClientPromise = import("./firebase-client.js").catch(function (err
   console.error("Firebase SDK could not be loaded.", error);
   return null;
 });
-let currentUser = null;
-let authResolved = false;
-let authMode = "login";
-let pendingCheckout = false;
 let directCartBackup = null;
-let resolveAuthReady;
-const authReady = new Promise(function (resolve) { resolveAuthReady = resolve; });
 const products = [
   {
     id: "elephant",
@@ -79,7 +73,6 @@ const products = [
 ];
 
 let heroImages = [
-  "./Ảnh/1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg",
   "./Ảnh/1793952038752_775144749478927533_8960683272696312118_59cb1f84777e2732ea7302d9759c6f55.jpg",
   "./Ảnh/1793952038836_775144749478927533_8960683272696312118_98262a53333be379d4d26be935bd6bee.jpg",
   "./Ảnh/1793952038800_775144749478927533_8960683272696312118_0c988ed0b31de9d0a81954d90fefd77b.jpg",
@@ -123,7 +116,11 @@ async function loadUploadedGalleryImages() {
     const imageByName = new Map(imageFiles.map(function (file) { return [file.name, file.download_url]; }));
     const productImageNames = products.map(function (product) { return product.image.split("/").pop(); });
     const orderedNames = Array.from(new Set(productImageNames.concat(imageFiles.map(function (file) { return file.name; }))));
-    const uploadedImages = orderedNames.map(function (name) { return imageByName.get(name); }).filter(Boolean);
+    const removedHeroImages = new Set([
+      "1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg",
+      "limon-shop-logo.png"
+    ]);
+    const uploadedImages = orderedNames.filter(function (name) { return !removedHeroImages.has(name); }).map(function (name) { return imageByName.get(name); }).filter(Boolean);
     if (uploadedImages.length) {
       heroImages = uploadedImages;
       showHeroImage(0);
@@ -168,7 +165,6 @@ const orderModal = document.getElementById("order-modal");
 const orderPreview = document.getElementById("order-preview");
 const orderForm = document.getElementById("order-form");
 const orderSuccess = document.getElementById("order-success");
-const authModal = document.getElementById("auth-modal");
 const toast = document.getElementById("toast");
 
 function formatMoney(amount) {
@@ -255,78 +251,6 @@ function showToast(message) {
   toastTimer = window.setTimeout(function () { toast.classList.remove("is-visible"); }, 2300);
 }
 
-function setAuthMode(mode) {
-  authMode = mode;
-  const registering = mode === "register";
-  document.getElementById("auth-title").textContent = registering ? "ລົງທະບຽນ" : "ເຂົ້າລະບົບ";
-  document.getElementById("auth-description").textContent = registering
-    ? "ສ້າງບັນຊີດ້ວຍອີເມວ ຫຼື Google ກ່ອນສັ່ງຊື້."
-    : "ເຂົ້າລະບົບກ່ອນສັ່ງຊື້.";
-  document.getElementById("auth-name-label").hidden = !registering;
-  document.getElementById("auth-name").hidden = !registering;
-  document.getElementById("auth-name").required = registering;
-  document.getElementById("auth-password").autocomplete = registering ? "new-password" : "current-password";
-  document.getElementById("auth-submit").innerHTML = registering
-    ? 'ສ້າງບັນຊີ <span aria-hidden="true">→</span>'
-    : 'ເຂົ້າລະບົບ <span aria-hidden="true">→</span>';
-  document.getElementById("auth-switch-prompt").textContent = registering ? "ມີບັນຊີແລ້ວ?" : "ຍັງບໍ່ມີບັນຊີ?";
-  document.getElementById("auth-switch").textContent = registering ? "ເຂົ້າລະບົບ" : "ລົງທະບຽນ";
-}
-
-function openAuthModal(mode, checkoutPending) {
-  setAuthMode(mode);
-  pendingCheckout = Boolean(checkoutPending);
-  document.getElementById("auth-status").textContent = pendingCheckout
-    ? "ກະລຸນາລົງທະບຽນ ຫຼື ເຂົ້າລະບົບກ່ອນສັ່ງຊື້."
-    : "";
-  authModal.hidden = false;
-  document.body.classList.add("has-overlay");
-  document.getElementById("auth-email").focus();
-}
-
-function closeAuthModal(restorePurchase) {
-  authModal.hidden = true;
-  document.body.classList.remove("has-overlay");
-  if (restorePurchase) {
-    pendingCheckout = false;
-    restoreDirectCart();
-  }
-}
-
-function updateAuthHeader(user) {
-  currentUser = user || null;
-  document.getElementById("login-open").hidden = Boolean(user);
-  document.getElementById("register-open").hidden = Boolean(user);
-  document.getElementById("auth-user").hidden = !user;
-  document.getElementById("logout-button").hidden = !user;
-  document.getElementById("auth-user").textContent = user ? (user.displayName || user.email || "ບັນຊີຂອງຂ້ອຍ") : "";
-  if (user && user.displayName && !document.getElementById("customer-name").value) {
-    document.getElementById("customer-name").value = user.displayName;
-  }
-  authResolved = true;
-  resolveAuthReady();
-  if (user) {
-    closeAuthModal();
-    if (pendingCheckout) {
-      pendingCheckout = false;
-      openOrder();
-    }
-  }
-}
-
-firebaseClientPromise.then(function (client) {
-  if (!client) {
-    authResolved = true;
-    resolveAuthReady();
-    return;
-  }
-  client.authentication.onAuthStateChanged(client.auth, updateAuthHeader);
-}).catch(function (error) {
-  console.error("Firebase Authentication could not start.", error);
-  authResolved = true;
-  resolveAuthReady();
-});
-
 function openCart() {
   drawerBackdrop.hidden = false;
   drawer.classList.add("is-open");
@@ -370,14 +294,7 @@ async function openOrder() {
   if (!cart.length) return;
   const client = await firebaseClientPromise;
   if (!client) {
-    restoreDirectCart();
-    showToast("ລະບົບບັນຊີຍັງບໍ່ພ້ອມ. ລອງອີກຄັ້ງພາຍຫຼັງ.");
-    return;
-  }
-  await authReady;
-  if (!currentUser) {
-    closeCart();
-    openAuthModal("login", true);
+    showToast("ລະບົບສັ່ງຊື້ຍັງບໍ່ພ້ອມ. ລອງອີກຄັ້ງ.");
     return;
   }
   closeCart();
@@ -451,19 +368,9 @@ import("./firebase-config.js").then(function (config) {
 async function submitOrder(event) {
   event.preventDefault();
   if (!cart.length || !orderForm.reportValidity()) return;
-  if (!currentUser) {
-    orderModal.hidden = true;
-    openAuthModal("login", true);
-    return;
-  }
 
   const button = document.getElementById("place-order");
-  const proofFile = document.getElementById("payment-proof").files[0] || null;
   const copyButton = document.getElementById("copy-order");
-  if (proofFile && (!["image/jpeg", "image/png", "image/webp"].includes(proofFile.type) || proofFile.size > 5 * 1024 * 1024)) {
-    document.getElementById("copy-status").textContent = "ເລືອກຮູບ JPG, PNG ຫຼື WEBP ຂະໜາດບໍ່ເກີນ 5 MB.";
-    return;
-  }
 
   button.disabled = true;
   copyButton.disabled = true;
@@ -473,14 +380,11 @@ async function submitOrder(event) {
   let client;
   let orderRef;
   let orderSaved = false;
-  let proofUploaded = false;
-  let uploadFailed = false;
 
   try {
     client = await firebaseClientPromise;
     if (!client) throw new Error("firebase_sdk_unavailable");
     orderRef = client.firestore.doc(client.firestore.collection(client.db, "orders"));
-    const proofPath = proofFile ? "payment-proofs/" + orderRef.id + "/receipt" : "";
     const items = cart.map(function (item) {
       const product = productById(item.productId);
       const option = selectedOption(product, item.optionId);
@@ -500,35 +404,25 @@ async function submitOrder(event) {
       name: document.getElementById("customer-name").value.trim(),
       phone: document.getElementById("customer-phone").value.trim(),
       address: document.getElementById("customer-address").value.trim(),
+      deliveryArea: document.getElementById("delivery-area").value,
       note: document.getElementById("customer-note").value.trim()
     };
 
     await client.firestore.setDoc(orderRef, {
-      customerUid: currentUser.uid,
-      customerEmail: currentUser.email || "",
+      customerUid: "",
+      customerEmail: "",
       customer: customer,
       items: items,
       total: totalPrice(),
       currency: "LAK",
-      paymentMethod: "BCEL QR",
-      paymentStatus: proofFile ? "awaiting_proof_upload" : "awaiting_payment",
-      paymentProofPath: proofPath,
+      paymentMethod: "cash_on_delivery",
+      paymentStatus: "pay_on_delivery",
+      paymentProofPath: "",
       orderStatus: "new",
       createdAt: client.firestore.serverTimestamp()
     });
     orderSaved = true;
 
-    if (proofFile) {
-      try {
-        const proofRef = client.cloudStorage.ref(client.storage, proofPath);
-        await client.cloudStorage.uploadBytes(proofRef, proofFile, { contentType: proofFile.type });
-        await client.firestore.updateDoc(orderRef, { paymentStatus: "proof_submitted" });
-        proofUploaded = true;
-      } catch (error) {
-        console.error("The order was saved, but its payment proof could not be uploaded.", error);
-        uploadFailed = true;
-      }
-    }
   } catch (error) {
     console.error("The order could not be saved.", error);
     if (!orderSaved) {
@@ -550,11 +444,7 @@ async function submitOrder(event) {
   renderCart();
   orderForm.hidden = true;
   orderSuccess.hidden = false;
-  const receiptMessage = proofUploaded
-    ? "ຮ້ານໄດ້ຮັບຫຼັກຖານການໂອນແລ້ວ."
-    : uploadFailed
-      ? "ບັນທຶກຄຳສັ່ງຊື້ແລ້ວ ແຕ່ອັບໂຫຼດຫຼັກຖານການໂອນບໍ່ສຳເລັດ. ກະລຸນາສົ່ງຫຼັກຖານການໂອນໃຫ້ຮ້ານທາງ Facebook."
-      : "ບັນທຶກຄຳສັ່ງຊື້ແລ້ວ. ສາມາດສົ່ງຫຼັກຖານການໂອນໃຫ້ຮ້ານທາງ Facebook ໄດ້.";
+  const receiptMessage = "ສັ່ງຊື້ສຳເລັດ. ຊຳລະເງິນປາຍທາງໃນເຂດຕົວເມືອງຫຼວງພະບາງ.";
   orderSuccess.innerHTML = '<span class="success-mark" aria-hidden="true">✓</span><h3>ຂອບໃຈທີ່ສັ່ງຊື້</h3><p>' + receiptMessage + '</p><p class="order-code">ເລກທີຄຳສັ່ງຊື້: <strong>' + orderRef.id + '</strong></p><a class="button button-outline button-wide" href="' + facebookUrl + '" target="_blank" rel="noreferrer">ຕິດຕໍ່ຮ້ານທາງ Facebook <span aria-hidden="true">↗</span></a><button class="button button-quiet button-wide" type="button" data-close-order-success>ກັບຄືນໜ້າຮ້ານ</button>';
   showToast("ບັນທຶກຄຳສັ່ງຊື້ແລ້ວ");
 }
@@ -619,74 +509,6 @@ document.querySelectorAll(".filter-chip").forEach(function (button) {
   });
 });
 document.getElementById("product-search").addEventListener("input", function (event) { renderProducts(event.target.value); });
-document.getElementById("login-open").addEventListener("click", function () { openAuthModal("login", false); });
-document.getElementById("register-open").addEventListener("click", function () { openAuthModal("register", false); });
-document.getElementById("auth-switch").addEventListener("click", function () { setAuthMode(authMode === "login" ? "register" : "login"); });
-document.getElementById("close-auth").addEventListener("click", function () { closeAuthModal(true); });
-authModal.addEventListener("click", function (event) { if (event.target === authModal) closeAuthModal(true); });
-document.getElementById("auth-form").addEventListener("submit", async function (event) {
-  event.preventDefault();
-  const button = document.getElementById("auth-submit");
-  const status = document.getElementById("auth-status");
-  const email = document.getElementById("auth-email").value.trim();
-  const password = document.getElementById("auth-password").value;
-  const name = document.getElementById("auth-name").value.trim();
-  button.disabled = true;
-  status.textContent = authMode === "register" ? "ກຳລັງສ້າງບັນຊີ..." : "ກຳລັງເຂົ້າລະບົບ...";
-  try {
-    const client = await firebaseClientPromise;
-    if (!client) throw new Error("firebase_sdk_unavailable");
-    if (authMode === "register") {
-      const credential = await client.authentication.createUserWithEmailAndPassword(client.auth, email, password);
-      await client.authentication.updateProfile(credential.user, { displayName: name });
-      updateAuthHeader(credential.user);
-      status.textContent = "ສ້າງບັນຊີສຳເລັດ.";
-    } else {
-      const credential = await client.authentication.signInWithEmailAndPassword(client.auth, email, password);
-      updateAuthHeader(credential.user);
-      status.textContent = "ເຂົ້າລະບົບສຳເລັດ.";
-    }
-  } catch (error) {
-    console.error("Customer authentication failed.", error);
-    status.textContent = "ບໍ່ສຳເລັດ. ກະລຸນາກວດສອບອີເມວ, ລະຫັດຜ່ານ ແລະ ການເປີດໃຊ້ Email/Password ໃນ Firebase.";
-  } finally {
-    button.disabled = false;
-  }
-});
-document.getElementById("google-login").addEventListener("click", async function () {
-  const button = document.getElementById("google-login");
-  const status = document.getElementById("auth-status");
-  button.disabled = true;
-  status.textContent = "ກຳລັງເຊື່ອມຕໍ່ Google...";
-  try {
-    const client = await firebaseClientPromise;
-    if (!client) throw new Error("firebase_sdk_unavailable");
-    const provider = new client.authentication.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    const credential = await client.authentication.signInWithPopup(client.auth, provider);
-    updateAuthHeader(credential.user);
-    status.textContent = "ເຂົ້າລະບົບດ້ວຍ Google ສຳເລັດ.";
-  } catch (error) {
-    console.error("Google sign-in failed.", error);
-    if (error.code === "auth/unauthorized-domain") {
-      status.textContent = "ໂດເມນນີ້ຍັງບໍ່ໄດ້ອະນຸຍາດ. ໃຫ້ເພີ່ມ phiphakone.github.io ໃນ Firebase Authentication > Settings > Authorized domains.";
-    } else if (error.code === "auth/operation-not-allowed") {
-      status.textContent = "Google Sign-In ຍັງບໍ່ໄດ້ເປີດ. ໃຫ້ເປີດ Google provider ໃນ Firebase Authentication > Sign-in method.";
-    } else if (error.code === "auth/popup-blocked") {
-      status.textContent = "ບຣາວເຊີບລັອກໜ້າຕ່າງ Google. ອະນຸຍາດ popup ແລ້ວລອງອີກຄັ້ງ.";
-    } else if (error.code === "auth/popup-closed-by-user") {
-      status.textContent = "ປິດໜ້າຕ່າງ Google ກ່ອນສຳເລັດ. ກົດເຂົ້າດ້ວຍ Google ອີກຄັ້ງໄດ້.";
-    } else {
-      status.textContent = "ເຊື່ອມຕໍ່ Google ບໍ່ສຳເລັດ. ກວດກາ Google provider ແລະ Authorized domains ໃນ Firebase.";
-    }
-  } finally {
-    button.disabled = false;
-  }
-});
-document.getElementById("logout-button").addEventListener("click", async function () {
-  const client = await firebaseClientPromise;
-  if (client) await client.authentication.signOut(client.auth);
-});
 document.getElementById("open-cart").addEventListener("click", openCart);
 document.getElementById("close-cart").addEventListener("click", closeCart);
 document.getElementById("continue-shopping").addEventListener("click", function () { closeCart(); document.getElementById("products").scrollIntoView({ behavior: "smooth" }); });
@@ -729,7 +551,6 @@ orderSuccess.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
   if (event.key === "Escape") {
     if (!orderModal.hidden) closeOrder();
-    else if (!authModal.hidden) closeAuthModal(true);
     else if (drawer.classList.contains("is-open")) closeCart();
   }
 });
