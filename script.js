@@ -22,7 +22,7 @@ const products = [
     id: "flower-box",
     code: "L02",
     name: "ເຈ້ຍທິດຊູແບບກ່ອງລາຍດອກໄມ້",
-    subtitle: "ແບບກ່ອງ · ລາຍດອກໄມ້",
+    subtitle: "ແບບກ່ອງ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "box",
     tag: "ລາຍດອກໄມ້",
     image: "./Ảnh/1793952038752_775144749478927533_8960683272696312118_59cb1f84777e2732ea7302d9759c6f55.jpg",
@@ -34,34 +34,34 @@ const products = [
   {
     id: "branch-box",
     code: "L03",
-    name: "ເຈ້ຍທິດຊູແບບກ່ອງລາຍກິ່ງໄມ້",
-    subtitle: "ແບບກ່ອງ · ລາຍກິ່ງໄມ້",
+    name: "ເຈ້ຍທີດຊູ້ລາຍດອກຈໍາປາແບບດຶງຈາກດ້ານລຸ່ມ",
+    subtitle: "ແບບກ່ອງ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "box",
     tag: "ກ່ອງລາຍກິ່ງໄມ້",
     image: "./Ảnh/1793952038636_775144749478927533_8960683272696312118_71e3bd2cd4b27f269ed03eab2b796f66.jpg",
     options: [
-      { id: "single", label: "1 ມັດ", quantityLabel: "1 ມັດ", unit: "ມັດ", price: 22000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 24 ມັດ", quantityLabel: "1 ແກັດ (ລວມ 24 ມັດ)", unit: "ແກັດ", price: 450000, count: 24 }
+      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 22000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 450000, count: 24 }
     ]
   },
   {
     id: "roll-flower",
     code: "L04",
     name: "ເຈ້ຍກໍ້ມ້ວນໃຫຍ່",
-    subtitle: "ເຈ້ຍມ້ວນ · ລາຍດອກໄມ້",
+    subtitle: "ເຈ້ຍມ້ວນ · ລາຍກິ່ງດອກຈໍາປາ",
     category: "roll",
     tag: "ເຈ້ຍມ້ວນ",
     image: "./Ảnh/1793952038431_775144749478927533_8960683272696312118_c23ba2ac5c42df176570db92e18c75ca.jpg",
     options: [
-      { id: "single", label: "1 ມັດ", quantityLabel: "1 ມັດ", unit: "ມັດ", price: 25000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 24 ມັດ", quantityLabel: "1 ແກັດ (ລວມ 24 ມັດ)", unit: "ແກັດ", price: 580000, count: 24 }
+      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 25000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 580000, count: 24 }
     ]
   },
   {
     id: "flower-pack",
     code: "L05",
     name: "ເຈ້ຍທິດຊູລາຍດອກຈຳປາແພັກໃຫຍ່4ອັນ",
-    subtitle: "ລາຍກິ່ງດອກໄມ້ · 12 ແພັກຕໍ່ແກັດ",
+    subtitle: "ລາຍກິ່ງດອກຈໍາປາ · 12 ແພັກຕໍ່ແກັດ",
     category: "pack",
     tag: "ລາຍກິ່ງດອກໄມ້",
     image: "./Ảnh/1793952038474_775144749478927533_8960683272696312118_9ec6e608f28a7e95c8d64fa55ad17763.jpg",
