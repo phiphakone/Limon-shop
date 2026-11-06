@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="lo">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3faff">
+  <title>Limon Shop — Admin</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./admin.js"></script>
+</head>
+<body class="admin-page">
+  <div class="announcement"><span class="announcement-dot" aria-hidden="true"></span> ໜ້າຈັດການອໍເດີ · LIMON SHOP</div>
+  <header class="admin-header">
+    <a class="brand" href="./index.html" aria-label="ກັບໄປໜ້າຮ້ານ">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M9 12.5 20 7l11 5.5v15L20 33l-11-5.5v-15Z" fill="currentColor" opacity=".14"/><path d="M9 12.5 20 18l11-5.5M20 18v15m0-15L9 12.5m11 5.5 11-5.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+      <span class="brand-copy"><strong>Limon Shop</strong><small>ລະບົບຈັດການຮ້ານ</small></span>
+    </a>
+    <a class="back-to-shop" href="./index.html">← ກັບໄປໜ້າຮ້ານ</a>
+  </header>
+
+  <main class="admin-main page-width">
+    <section class="admin-login-card" id="admin-login-card">
+      <span class="eyebrow"><span></span> ສຳລັບຜູ້ດູແລຮ້ານເທົ່ານັ້ນ</span>
+      <h1>ເຂົ້າສູ່ລະບົບ Admin</h1>
+      <p>ໃຊ້ email ແລະ password ທີ່ສ້າງໄວ້ໃນ Firebase Authentication.</p>
+      <form id="admin-login-form">
+        <label class="field-label" for="admin-email">Email</label>
+        <input class="text-field" id="admin-email" type="email" autocomplete="username" required>
+        <label class="field-label" for="admin-password">Password</label>
+        <input class="text-field" id="admin-password" type="password" autocomplete="current-password" required>
+        <button class="button button-primary button-wide" id="admin-login-button" type="submit">ເຂົ້າລະບົບ <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="admin-message" id="admin-login-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="admin-dashboard" id="admin-dashboard" hidden>
+      <div class="admin-title-row">
+        <div><span class="eyebrow"><span></span> ລາຍການຈາກລູກຄ້າ</span><h1>ຈັດການອໍເດີ</h1><p id="admin-signed-in"></p></div>
+        <button class="button button-outline" id="admin-logout" type="button">ອອກຈາກລະບົບ</button>
+      </div>
+      <div class="admin-toolbar">
+        <div class="admin-count"><strong id="order-count">0</strong><span>ອໍເດີທັງໝົດ</span></div>
+        <label class="admin-filter-label" for="order-filter">ສະແດງ</label>
+        <select class="admin-filter" id="order-filter">
+          <option value="all">ທຸກສະຖານະ</option>
+          <option value="new">ອໍເດີໃໝ່</option>
+          <option value="confirmed">ຢືນຢັນແລ້ວ</option>
+          <option value="preparing">ກຳລັງກຽມ</option>
+          <option value="shipped">ຈັດສົ່ງແລ້ວ</option>
+          <option value="completed">ສຳເລັດ</option>
+          <option value="cancelled">ຍົກເລີກ</option>
+        </select>
+      </div>
+      <div class="admin-message" id="admin-data-message" role="status" aria-live="polite"></div>
+      <div class="admin-order-list" id="admin-order-list"></div>
+    </section>
+  </main>
+  <div class="toast" id="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>

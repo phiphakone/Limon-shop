@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'ppk.bm.30@gmail.com';
+    }
+    match /payment-proofs/{orderId}/receipt {
+      allow create: if request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow get: if isAdmin();
+      allow list, update, delete: if false;
+    }
+  }
+}

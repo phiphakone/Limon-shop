@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="lo">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3faff">
+  <meta name="description" content="ເລືອກຊື້ກະດາດທິດຊູ່ຈາກ Limon Shop. ເບິ່ງລາຄາຊື້ປີກ ແລະ ລາຄາຍົກແພັກໄດ້ງ່າຍ.">
+  <title>Limon Shop — ຮ້ານກະດາດທິດຊູ່</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="announcement">
+    <span class="announcement-dot" aria-hidden="true"></span>
+    ເລືອກໄດ້ທັງລາຄາຊື້ປີກ ແລະ ລາຄາຍົກແພັກ
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="Limon Shop ໜ້າຫຼັກ">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M9 12.5 20 7l11 5.5v15L20 33l-11-5.5v-15Z" fill="currentColor" opacity=".14"/><path d="M9 12.5 20 18l11-5.5M20 18v15m0-15L9 12.5m11 5.5 11-5.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m15 9.5 11 5.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-copy"><strong>Limon Shop</strong><small>ຮ້ານກະດາດທິດຊູ່</small></span>
+    </a>
+
+    <nav class="main-nav" aria-label="ເມນູຫຼັກ">
+      <a href="#products">ສິນຄ້າ</a>
+      <a href="#how-to-order">ວິທີສັ່ງຊື້</a>
+    </nav>
+
+    <button class="cart-open" id="open-cart" type="button" aria-label="ເປີດກະຕ່າສິນຄ້າ">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3.5 4.5h2l2.1 10.1a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 1.9-1.4l1.6-6.1H6.1M10 20a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Zm7.2 0a.8.8 0 1 0 0-1.6.8.8 0 0 0 0 1.6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="cart-label">ກະຕ່າ</span>
+      <span class="cart-count" id="cart-count" aria-live="polite">0</span>
+    </button>
+  </header>
+
+  <main id="home">
+    <section class="hero page-width">
+      <div class="hero-copy">
+        <span class="eyebrow"><span></span> LIMON SHOP · ກະດາດທິດຊູ່</span>
+        <h1>ຊື້ງ່າຍ.<br><em>ເລືອກຂະໜາດ</em><br>ໄດ້ຕາມໃຈ.</h1>
+        <p class="hero-description">ເລືອກສິນຄ້າ, ເບິ່ງລາຄາຕໍ່ແພັກ ຫຼື ລາຄາຍົກລັງ, ແລ້ວຈັດໃສ່ກະຕ່າໄດ້ເລີຍ.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#products">ເບິ່ງສິນຄ້າ <span aria-hidden="true">↘</span></a>
+          <a class="text-link" href="https://www.facebook.com/mon.mon.602100" target="_blank" rel="noreferrer">ຕິດຕໍ່ຮ້ານ <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-points">
+          <div><span class="point-icon">01</span><span>ເລືອກແພັກດຽວ<br>ຫຼື ຍົກລັງ</span></div>
+          <div><span class="point-icon">02</span><span>ລາຄາສະແດງ<br>ເປັນກີບ</span></div>
+          <div><span class="point-icon">03</span><span>ສົ່ງລາຍການສັ່ງ<br>ຜ່ານ Facebook</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-image-wrap">
+          <img src="./Ảnh/1793952038871_775144749478927533_8960683272696312118_eb5ba513852291c77f6408f3667cb22f.jpg" alt="ກະດາດທິດຊູ່ລາຍຊ້າງຂອງ Limon Shop">
+        </div>
+        <div class="hero-note">
+          <span class="note-mark" aria-hidden="true">✳</span>
+          <span><strong>ມີຫຼາຍແບບ</strong><small>ເລືອກເບິ່ງໃນລາຍການສິນຄ້າ</small></span>
+          <span class="note-arrow" aria-hidden="true">↘</span>
+        </div>
+        <div class="hero-sticker">ຊື້ປີກ<br><b>·</b> ຍົກລັງ</div>
+      </div>
+    </section>
+
+    <section class="product-section" id="products">
+      <div class="page-width">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow"><span></span> ເລືອກແບບທີ່ຕ້ອງການ</span>
+            <h2>ສິນຄ້າຂອງຮ້ານ</h2>
+            <p>ແຕະເລືອກຂະໜາດແພັກ ເພື່ອເບິ່ງລາຄາ ແລະ ຈຳນວນຕໍ່ລັງ.</p>
+          </div>
+          <label class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4.3 4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <input id="product-search" type="search" placeholder="ຄົ້ນຫາສິນຄ້າ..." aria-label="ຄົ້ນຫາສິນຄ້າ">
+          </label>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="ກັ່ນຕອງສິນຄ້າ">
+          <button class="filter-chip is-active" type="button" data-filter="all">ທັງໝົດ <span>05</span></button>
+          <button class="filter-chip" type="button" data-filter="box">ທິດຊູ່ກ່ອງ</button>
+          <button class="filter-chip" type="button" data-filter="roll">ເຈ້ຍມ້ວນ</button>
+          <button class="filter-chip" type="button" data-filter="pack">ທິດຊູ່ແພັກ</button>
+        </div>
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        <p class="no-results" id="no-results" hidden>ບໍ່ພົບສິນຄ້າ. ລອງຄົ້ນຫາຄຳອື່ນ.</p>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-to-order">
+      <div class="page-width how-inner">
+        <div class="how-intro">
+          <span class="eyebrow"><span></span> ສັ່ງຊື້ໃນ 3 ຂັ້ນຕອນ</span>
+          <h2>ເລືອກແລ້ວ<br><em>ສົ່ງອໍເດີ</em>ຫາຮ້ານ.</h2>
+          <a class="text-link" href="https://www.facebook.com/mon.mon.602100" target="_blank" rel="noreferrer">ເປີດ Facebook ຂອງຮ້ານ <span aria-hidden="true">↗</span></a>
+        </div>
+        <ol class="steps">
+          <li><span>01</span><div><strong>ເລືອກສິນຄ້າ</strong><p>ເລືອກຊື້ປີກ ຫຼື ເລືອກຊື້ຍົກລັງ.</p></div></li>
+          <li><span>02</span><div><strong>ຈັດໃສ່ກະຕ່າ</strong><p>ເພີ່ມຈຳນວນ ແລະ ກວດຍອດລວມ.</p></div></li>
+          <li><span>03</span><div><strong>ສົ່ງລາຍການໃຫ້ຮ້ານ</strong><p>ຄັດລອກລາຍການ ແລ້ວເປີດ Facebook ເພື່ອສົ່ງຂໍ້ຄວາມ.</p></div></li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="page-width footer-inner">
+      <a class="brand footer-brand" href="#home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M9 12.5 20 7l11 5.5v15L20 33l-11-5.5v-15Z" fill="currentColor" opacity=".14"/><path d="M9 12.5 20 18l11-5.5M20 18v15m0-15L9 12.5m11 5.5 11-5.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+        <span class="brand-copy"><strong>Limon Shop</strong><small>ຮ້ານກະດາດທິດຊູ່</small></span>
+      </a>
+      <p>ສັ່ງຊື້ໃນເວັບ ແລະ ກວດສະຖານະກັບຮ້ານໄດ້.</p>
+      <div class="footer-links"><a class="footer-social" href="https://www.facebook.com/mon.mon.602100" target="_blank" rel="noreferrer">Facebook <span aria-hidden="true">↗</span></a><a class="footer-admin" href="./admin.html">ສຳລັບ Admin</a></div>
+    </div>
+  </footer>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
+    <div class="drawer-head">
+      <div><span class="eyebrow"><span></span> ລາຍການທີ່ເລືອກ</span><h2 id="cart-title">ກະຕ່າສິນຄ້າ</h2></div>
+      <button class="icon-button" id="close-cart" type="button" aria-label="ປິດກະຕ່າ">×</button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-empty" id="cart-empty"><span class="empty-icon">＋</span><strong>ກະຕ່າຍັງວ່າງຢູ່</strong><p>ເລືອກສິນຄ້າທີ່ມັກ ແລ້ວເພີ່ມລົງໃນກະຕ່າ.</p><button class="button button-outline" id="continue-shopping" type="button">ເບິ່ງສິນຄ້າ</button></div>
+    <div class="drawer-bottom" id="drawer-bottom" hidden>
+      <div class="total-row"><span>ຍອດລວມ</span><strong id="cart-total">0 ₭</strong></div>
+      <p>ກວດສິນຄ້າ ແລະ ກອກຂໍ້ມູນຈັດສົ່ງກ່ອນຢືນຢັນ.</p>
+      <div class="drawer-actions"><button class="button button-quiet" id="clear-cart" type="button">ລ້າງກະຕ່າ</button><button class="button button-primary" id="checkout-button" type="button">ສັ່ງຊື້ຕໍ່ <span aria-hidden="true">→</span></button></div>
+    </div>
+  </aside>
+
+  <div class="modal-backdrop" id="order-modal" hidden>
+    <section class="order-modal" role="dialog" aria-modal="true" aria-labelledby="order-title">
+      <div class="modal-head">
+        <div><span class="eyebrow"><span></span> ຂັ້ນຕອນສຸດທ້າຍ</span><h2 id="order-title">ກຽມລາຍການສັ່ງຊື້</h2></div>
+        <button class="icon-button" id="close-order" type="button" aria-label="ປິດໜ້າສັ່ງຊື້">×</button>
+      </div>
+      <p class="modal-description">ກອກຂໍ້ມູນຕິດຕໍ່ ແລະ ບ່ອນຈັດສົ່ງ. ລາຍການຈະຖືກບັນທຶກເຂົ້າລະບົບຂອງຮ້ານ.</p>
+      <div class="payment-panel">
+        <div class="payment-copy"><span class="payment-kicker">ຊຳລະເງິນ</span><strong>ໂອນຜ່ານ BCEL / LAK</strong><p id="payment-instructions">ສະແກນ QR, ໂອນຕາມຍອດລວມຂອງອໍເດີ ແລ້ວແນບຫຼັກຖານການໂອນ.</p><div id="payment-account"></div></div>
+        <img class="payment-qr" id="payment-qr" src="./Ảnh/qr-payment.png" alt="BCEL ລະຫັດ QR ຮັບເງິນ">
+      </div>
+      <form id="order-form">
+        <label class="field-label" for="customer-name">ຊື່ຜູ້ຮັບ <span>*</span></label>
+        <input class="text-field" id="customer-name" name="customerName" type="text" autocomplete="name" placeholder="ຊື່ ແລະ ນາມສະກຸນ" required maxlength="100">
+        <label class="field-label" for="customer-phone">ເບີໂທຕິດຕໍ່ <span>*</span></label>
+        <input class="text-field" id="customer-phone" name="customerPhone" type="tel" autocomplete="tel" placeholder="ພິມເບີໂທ" required maxlength="32">
+        <label class="field-label" for="customer-address">ທີ່ຢູ່ຈັດສົ່ງ <span>*</span></label>
+        <textarea class="text-field text-area" id="customer-address" name="customerAddress" autocomplete="street-address" placeholder="ບ້ານ, ເມືອງ, ແຂວງ ແລະ ຈຸດສັງເກດ" required maxlength="500"></textarea>
+        <label class="field-label" for="customer-note">ໝາຍເຫດ (ບໍ່ບັງຄັບ)</label>
+        <textarea class="text-field text-area text-area-small" id="customer-note" name="customerNote" placeholder="ຂໍ້ມູນເພີ່ມເຕີມ" maxlength="300"></textarea>
+        <label class="field-label" for="payment-proof">ຫຼັກຖານການໂອນ (ຮູບພາບ)</label>
+        <input class="file-field" id="payment-proof" name="paymentProof" type="file" accept="image/jpeg,image/png,image/webp">
+        <p class="file-hint">ແນບຮູບສະລິບໄດ້ສູງສຸດ 5 MB.</p>
+        <div class="order-preview" id="order-preview"></div>
+        <div class="modal-actions">
+          <button class="button button-primary button-wide" id="place-order" type="submit">ຢືນຢັນອໍເດີ <span aria-hidden="true">→</span></button>
+          <button class="button button-quiet" id="copy-order" type="button">ຄັດລອກລາຍການ</button>
+        </div>
+      </form>
+      <div class="order-success" id="order-success" hidden></div>
+      <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
