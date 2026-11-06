@@ -141,8 +141,8 @@ function renderProducts(searchText) {
         '<div class="option-choice-list" role="group" aria-label="ເລືອກແບບບັນຈຸ">' + optionMarkup + '</div>' +
         '<p class="option-selection-hint">ເລືອກແບບທີ່ຕ້ອງການກ່ອນສັ່ງຊື້</p>' +
         '<div class="product-actions"><div class="quantity-control" aria-label="ຈຳນວນທີ່ສັ່ງຊື້"><button type="button" data-step="-1" data-quantity-for="' + product.id + '" aria-label="ຫຼຸດຈຳນວນ">−</button><input type="number" min="1" max="99" value="1" inputmode="numeric" data-quantity-input="' + product.id + '" aria-label="ຈຳນວນທີ່ສັ່ງຊື້"><button type="button" data-step="1" data-quantity-for="' + product.id + '" aria-label="ເພີ່ມຈຳນວນ">+</button></div>' +
-        '<button class="button button-outline add-button" type="button" data-add="' + product.id + '" disabled><span aria-hidden="true">＋</span> ໃສ່ກະຕ່າ</button>' +
-        '<button class="button button-primary add-button buy-now-button" type="button" data-buy-now="' + product.id + '" disabled><span aria-hidden="true">↗</span> ສັ່ງຊື້ທັນທີ</button></div>' +
+        '<button class="button button-outline add-button" type="button" data-add="' + product.id + '"><span aria-hidden="true">＋</span> ໃສ່ກະຕ່າ</button>' +
+        '<button class="button button-primary add-button buy-now-button" type="button" data-buy-now="' + product.id + '"><span aria-hidden="true">↗</span> ສັ່ງຊື້ທັນທີ</button></div>' +
       '</div></article>';
   }).join("");
   noResults.hidden = visible.length !== 0;
@@ -258,12 +258,31 @@ function restoreDirectCart() {
   renderCart();
 }
 
+function selectProductOption(productId, optionId) {
+  const card = productGrid.querySelector('[data-product-card="' + productId + '"]');
+  if (!card) return;
+  const selectedChoice = card.querySelector('[data-option-choice="' + productId + '"][data-option-id="' + optionId + '"]');
+  if (!selectedChoice) return;
+  card.querySelectorAll("[data-option-choice]").forEach(function (choice) {
+    const isSelected = choice === selectedChoice;
+    choice.setAttribute("aria-pressed", String(isSelected));
+    choice.classList.toggle("is-selected", isSelected);
+  });
+}
+
+function selectedOrDefaultOptionId(productId) {
+  const product = productById(productId);
+  if (!product) return null;
+  const selectedChoice = productGrid.querySelector('[data-option-choice="' + productId + '"][aria-pressed="true"]');
+  const optionId = selectedChoice ? selectedChoice.dataset.optionId : product.options[0].id;
+  if (!selectedChoice) selectProductOption(productId, optionId);
+  return optionId;
+}
+
 function startDirectCheckout(productId) {
   const product = productById(productId);
   if (!product) return;
-  const selectedChoice = productGrid.querySelector('[data-option-choice="' + productId + '"][aria-pressed="true"]');
-  if (!selectedChoice) return;
-  const optionId = selectedChoice.dataset.optionId;
+  const optionId = selectedOrDefaultOptionId(productId);
   const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
   const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
   if (directCartBackup === null) directCartBackup = cart.map(function (item) { return { productId: item.productId, optionId: item.optionId, quantity: item.quantity }; });
@@ -391,16 +410,7 @@ async function submitOrder(event) {
 productGrid.addEventListener("click", function (event) {
   const optionChoice = event.target.closest("[data-option-choice]");
   if (optionChoice) {
-    const productId = optionChoice.dataset.optionChoice;
-    const card = optionChoice.closest("[data-product-card]");
-    card.querySelectorAll("[data-option-choice]").forEach(function (choice) {
-      const isSelected = choice === optionChoice;
-      choice.setAttribute("aria-pressed", String(isSelected));
-      choice.classList.toggle("is-selected", isSelected);
-    });
-    card.querySelectorAll('[data-add="' + productId + '"], [data-buy-now="' + productId + '"]').forEach(function (button) {
-      button.disabled = false;
-    });
+    selectProductOption(optionChoice.dataset.optionChoice, optionChoice.dataset.optionId);
     return;
   }
 
@@ -420,9 +430,7 @@ productGrid.addEventListener("click", function (event) {
   const addButton = event.target.closest("[data-add]");
   if (addButton) {
     const productId = addButton.dataset.add;
-    const selectedChoice = productGrid.querySelector('[data-option-choice="' + productId + '"][aria-pressed="true"]');
-    if (!selectedChoice) return;
-    const optionId = selectedChoice.dataset.optionId;
+    const optionId = selectedOrDefaultOptionId(productId);
     const quantityInput = productGrid.querySelector('[data-quantity-input="' + productId + '"]');
     const quantity = Math.max(1, Math.min(99, Number(quantityInput.value) || 1));
     const existing = cart.find(function (item) { return item.productId === productId && item.optionId === optionId; });

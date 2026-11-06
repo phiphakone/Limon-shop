@@ -120,9 +120,12 @@ img { display: block; max-width: 100%; }
 .site-footer { background: #f5faff; border-top: 1px solid #e4eff6; }
 .footer-inner { min-height: 108px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .footer-brand { min-width: auto; }
+.footer-brand .brand-logo { width: 150px; height: 58px; }
 .footer-inner > p { margin: 0; color: #738b9b; font-size: 9px; }
 .footer-social { color: var(--blue-deep); font-size: 10px; font-weight: 600; }
 .footer-social span { margin-left: 4px; }
+.admin-brand-label { margin-left: 12px; color: var(--muted); font-size: 10px; }
+.admin-header .brand-logo { width: 170px; height: 66px; }
 
 .drawer-backdrop, .modal-backdrop { position: fixed; inset: 0; z-index: 20; background: rgba(14, 34, 49, .34); backdrop-filter: blur(2px); }
 .drawer-backdrop[hidden], .modal-backdrop[hidden] { display: none; }
@@ -213,6 +216,10 @@ img { display: block; max-width: 100%; }
 .admin-login-card > p, .admin-title-row > div > p { margin: 0 0 17px; color: var(--muted); font-size: 10px; }
 .admin-login-card form { display: grid; gap: 2px; }
 .admin-login-card form .button { margin-top: 12px; }
+.google-login-button { gap: 10px; justify-content: center; min-height: 43px; }
+.google-login-button svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.admin-login-divider { display: flex; align-items: center; gap: 11px; margin: 16px 0 7px; color: var(--muted); font-size: 9px; }
+.admin-login-divider::before, .admin-login-divider::after { content: ""; height: 1px; flex: 1; background: #e7eef3; }
 .admin-message { min-height: 20px; margin: 8px 0 0; color: #a2444c; font-size: 10px; }
 .admin-dashboard { width: 100%; }
 .admin-title-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }

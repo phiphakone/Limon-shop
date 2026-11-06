@@ -156,6 +156,35 @@ document.getElementById("admin-login-form").addEventListener("submit", async fun
   }
 });
 
+document.getElementById("admin-google-login").addEventListener("click", async function () {
+  const button = document.getElementById("admin-google-login");
+  const provider = new authentication.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  button.disabled = true;
+  loginMessage.textContent = "ກຳລັງເປີດໜ້າ Google...";
+  try {
+    const result = await authentication.signInWithPopup(auth, provider);
+    const email = result.user.email ? result.user.email.toLowerCase() : "";
+    if (email !== ADMIN_EMAIL.toLowerCase()) {
+      await authentication.signOut(auth);
+      loginMessage.textContent = "ບັນຊີ Google ນີ້ບໍ່ມີສິດເຂົ້າໜ້າຜູ້ດູແລຮ້ານ.";
+      return;
+    }
+    loginMessage.textContent = "";
+  } catch (error) {
+    console.error("Google admin sign in failed.", error);
+    if (error.code === "auth/popup-blocked") {
+      loginMessage.textContent = "ບຣາວເຊີບລັອກໜ້າ Google. ກະລຸນາອະນຸຍາດ popup ແລ້ວລອງໃໝ່.";
+    } else if (error.code === "auth/unauthorized-domain") {
+      loginMessage.textContent = "ໂດເມນນີ້ຍັງບໍ່ຢູ່ໃນລາຍການ Authorized domains ຂອງ Firebase Authentication.";
+    } else {
+      loginMessage.textContent = "ເຂົ້າລະບົບ Google ບໍ່ສຳເລັດ. ກະລຸນາລອງໃໝ່.";
+    }
+  } finally {
+    button.disabled = false;
+  }
+});
+
 document.getElementById("admin-logout").addEventListener("click", async function () {
   if (unsubscribeOrders) unsubscribeOrders();
   await authentication.signOut(auth);
