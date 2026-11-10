@@ -14,8 +14,8 @@ const products = [
     tag: "ລາຍຊ້າງ",
     image: "./Ảnh/product-l01.webp",
     options: [
-      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 30000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 15 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 15 ແພັກ)", unit: "ແກັດ", price: 420000, count: 15 }
+      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 29000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 15 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 15 ແພັກ)", unit: "ແກັດ", price: 400000, count: 15 }
     ]
   },
   {
@@ -27,8 +27,8 @@ const products = [
     tag: "ລາຍດອກໄມ້",
     image: "./Ảnh/product-l02.webp",
     options: [
-      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 45000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 10 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 10 ແພັກ)", unit: "ແກັດ", price: 430000, count: 10 }
+      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 40000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 10 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 10 ແພັກ)", unit: "ແກັດ", price: 400000, count: 10 }
     ]
   },
   {
@@ -40,8 +40,8 @@ const products = [
     tag: "ກ່ອງລາຍກິ່ງໄມ້",
     image: "./Ảnh/product-l03.webp",
     options: [
-      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 22000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 450000, count: 24 }
+      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 19000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 440000, count: 24 }
     ]
   },
   {
@@ -53,21 +53,21 @@ const products = [
     tag: "ເຈ້ຍມ້ວນ",
     image: "./Ảnh/product-l04.webp",
     options: [
-      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 25000 },
+      { id: "single", label: "1 ອັນ", quantityLabel: "1 ອັນ", unit: "ອັນ", price: 30000 },
       { id: "carton", label: "1 ແກັດ · ລວມ 24 ອັນ", quantityLabel: "1 ແກັດ (ລວມ 24 ອັນ)", unit: "ແກັດ", price: 580000, count: 24 }
     ]
   },
   {
     id: "flower-pack",
     code: "L05",
-    name: "ເຈ້ຍທິດຊູລາຍດອກຈຳປາແພັກໃຫຍ່4ອັນ",
+    name: "ເຈ້ຍທິດຊູ້ລາຍດອກຈໍາປາ",
     subtitle: "ລາຍກິ່ງດອກຈໍາປາ · 12 ແພັກຕໍ່ແກັດ",
     category: "pack",
     tag: "ລາຍກິ່ງດອກໄມ້",
     image: "./Ảnh/product-l05.webp",
     options: [
-      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 39000 },
-      { id: "carton", label: "1 ແກັດ · ລວມ 12 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 12 ແພັກ)", unit: "ແກັດ", price: 440000, count: 12 }
+      { id: "single", label: "1 ແພັກ", quantityLabel: "1 ແພັກ", unit: "ແພັກ", price: 35000 },
+      { id: "carton", label: "1 ແກັດ · ລວມ 12 ແພັກ", quantityLabel: "1 ແກັດ (ລວມ 12 ແພັກ)", unit: "ແກັດ", price: 400000, count: 12 }
     ]
   }
 ];
